@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Job Aid — Pre-conversation checklist · NovaBridge</title>
+  <link rel="stylesheet" href="tokens.css">
+  <style>
+    .stage-page { position: relative; z-index: 1; padding: var(--space-8) var(--space-4); }
+    .stage-container { max-width: var(--max-width-course); margin: 0 auto; width: 100%; }
+
+    /* ── Header ── */
+    .aid-header {
+      margin-bottom: var(--space-8);
+    }
+    .aid-title {
+      font-size: clamp(26px, 6vw, var(--text-3xl));
+      font-weight: var(--weight-semi);
+      color: var(--text-primary);
+      line-height: var(--leading-tight);
+      margin-bottom: var(--space-3);
+    }
+    .aid-subtitle {
+      font-size: var(--text-base);
+      color: var(--text-secondary);
+      line-height: var(--leading-base);
+      max-width: 420px;
+    }
+
+    /* ── Checklist cards ── */
+    .aid-cards {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-4);
+      margin-bottom: var(--space-8);
+    }
+
+    .aid-card {
+      border-radius: var(--radius-lg);
+      padding: var(--space-5);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .aid-card--o {
+      background: var(--grad-surface);
+      border: 1px solid var(--border-indigo);
+    }
+    .aid-card--n {
+      background: linear-gradient(135deg, rgba(236,72,153,0.08), rgba(139,92,246,0.06));
+      border: 1px solid var(--border-pink);
+    }
+    .aid-card--a1 {
+      background: linear-gradient(135deg, rgba(6,182,212,0.08), rgba(99,102,241,0.06));
+      border: 1px solid var(--border-cyan);
+    }
+    .aid-card--a2 {
+      background: linear-gradient(135deg, rgba(251,191,36,0.06), rgba(236,72,153,0.06));
+      border: 1px solid rgba(251,191,36,0.2);
+    }
+    .aid-card--meta {
+      background: var(--bg-glass);
+      border: 1px solid var(--border-default);
+    }
+
+    .aid-card-header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      margin-bottom: var(--space-4);
+    }
+
+    .aid-number {
+      width: 32px; height: 32px;
+      border-radius: var(--radius-pill);
+      display: flex; align-items: center; justify-content: center;
+      font-size: var(--text-sm); font-weight: var(--weight-semi);
+      color: #fff; flex-shrink: 0;
+    }
+    .aid-number--o { background: var(--grad-primary); box-shadow: var(--glow-sm); }
+    .aid-number--n { background: linear-gradient(135deg, var(--rose-500), var(--violet-600)); box-shadow: var(--glow-pink); }
+    .aid-number--a1 { background: linear-gradient(135deg, var(--cyan-500), var(--indigo-500)); box-shadow: var(--glow-cyan); }
+    .aid-number--a2 { background: linear-gradient(135deg, var(--gold-500), var(--rose-500)); box-shadow: 0 0 12px rgba(251,191,36,0.25); }
+    .aid-number--meta {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid var(--border-default);
+      color: var(--text-tertiary);
+    }
+
+    .aid-card-title {
+      font-size: var(--text-md);
+      font-weight: var(--weight-medium);
+      color: var(--text-primary);
+    }
+
+    .aid-card-body {
+      font-size: var(--text-sm);
+      color: var(--text-secondary);
+      line-height: var(--leading-base);
+      margin-bottom: var(--space-4);
+    }
+
+    .aid-template {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: var(--space-3) var(--space-4);
+      margin-bottom: var(--space-3);
+    }
+    .aid-template-text {
+      font-size: var(--text-base);
+      color: var(--text-primary);
+      font-style: italic;
+      line-height: var(--leading-base);
+    }
+
+    .aid-note {
+      font-size: var(--text-xs);
+      color: var(--text-tertiary);
+      line-height: var(--leading-base);
+    }
+
+    /* ── Fillable input inside cards ── */
+    .aid-input {
+      width: 100%;
+      padding: 9px 12px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      font-family: var(--font);
+      font-size: var(--text-sm);
+      color: var(--text-primary);
+      margin-top: var(--space-2);
+      transition: border-color var(--transition-fast);
+    }
+    .aid-input::placeholder { color: var(--text-hint); }
+    .aid-input:focus { outline: none; border-color: var(--indigo-400); }
+    textarea.aid-input { resize: none; min-height: 56px; line-height: 1.5; }
+
+    /* ── Checkable cards ── */
+
+    .aid-card-header {
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .aid-check {
+      width: 24px; height: 24px; flex-shrink: 0;
+      border: 2px solid var(--border-medium);
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      transition: all var(--transition-base);
+      margin-left: auto;
+    }
+
+    .aid-check svg {
+      width: 14px; height: 14px;
+      stroke: transparent;
+      stroke-width: 2.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      fill: none;
+      transition: stroke var(--transition-base);
+    }
+
+    .aid-card.checked .aid-check {
+      border-color: var(--indigo-400);
+      background: rgba(99,102,241,0.15);
+    }
+
+    .aid-card.checked .aid-check svg {
+      stroke: var(--indigo-300);
+    }
+
+    .aid-card.checked .aid-card-title {
+      text-decoration: line-through;
+      text-decoration-color: var(--text-tertiary);
+      color: var(--text-tertiary);
+      transition: all var(--transition-base);
+    }
+
+    .aid-card.checked .aid-card-body,
+    .aid-card.checked .aid-note {
+      opacity: 0.5;
+      transition: opacity var(--transition-base);
+    }
+
+    /* Progress bar */
+    .aid-progress {
+      margin-bottom: var(--space-6);
+    }
+
+    .aid-progress-bar {
+      height: 4px;
+      background: rgba(255,255,255,0.06);
+      border-radius: var(--radius-pill);
+      overflow: hidden;
+      margin-bottom: var(--space-2);
+    }
+
+    .aid-progress-fill {
+      height: 100%;
+      background: var(--grad-primary);
+      border-radius: var(--radius-pill);
+      transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+      width: 0%;
+    }
+
+    .aid-progress-text {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .aid-progress-count {
+      font-size: var(--text-xs);
+      color: var(--text-tertiary);
+    }
+
+    .aid-progress-ready {
+      font-size: var(--text-xs);
+      font-weight: var(--weight-semi);
+      color: var(--indigo-300);
+      opacity: 0;
+      transition: opacity var(--transition-base);
+    }
+
+    .aid-progress-ready.show {
+      opacity: 1;
+    }
+
+    .btn-reset {
+      background: none; border: none;
+      font-family: var(--font);
+      font-size: var(--text-xs);
+      color: var(--text-hint);
+      cursor: pointer;
+      padding: 0;
+      transition: color var(--transition-fast);
+    }
+    .btn-reset:hover { color: var(--text-tertiary); }
+
+    /* ── Footer ── */
+    .aid-footer {
+      text-align: center;
+      padding: var(--space-6) 0 var(--space-4);
+      border-top: 1px solid var(--border-subtle);
+    }
+    .aid-footer-label {
+      font-size: var(--text-xs);
+      color: var(--text-tertiary);
+      letter-spacing: 0.04em;
+      margin-bottom: var(--space-5);
+    }
+    .aid-footer .btn { min-width: 200px; }
+    .aid-private-note {
+      font-size: var(--text-xs);
+      color: var(--text-tertiary);
+      margin-top: var(--space-3);
+    }
+
+    /* ── Fade ── */
+    .fade-up {
+      opacity: 0; transform: translateY(12px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .fade-up.visible { opacity: 1; transform: translateY(0); }
+
+    /* ── Print styles ── */
+    @media print {
+      body { background: #fff; color: #111; }
+      .nav, .bg-orbs, .btn, .aid-private-note { display: none !important; }
+      .aid-card { border-color: #ddd; break-inside: avoid; }
+      .aid-number { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+      .aid-input { border-color: #ccc; }
+      .aid-title, .aid-card-title, .aid-template-text { color: #111; }
+      .aid-card-body, .aid-subtitle, .aid-note { color: #555; }
+      .fade-up { opacity: 1; transform: none; }
+    }
+
+    @media (max-width: 480px) {
+      .stage-page { padding: var(--space-5) var(--space-4); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bg-orbs" data-stage="aid">
+    <div class="orb orb-1"></div><div class="orb orb-2"></div><div class="orb orb-3"></div>
+  </div>
+
+  <nav class="nav">
+    <a href="index.html" class="nav-brand nav-link" style="font-size:var(--text-sm);font-weight:var(--weight-semi);color:var(--text-primary);text-decoration:none;">&larr; Course overview</a>
+    <div style="display:flex;align-items:center;gap:var(--space-4);">
+      <div class="text-toggle">
+        <button class="text-toggle-btn text-toggle-btn--sm" data-size="text-sm">A</button>
+        <button class="text-toggle-btn text-toggle-btn--md" data-size="text-md">A</button>
+        <button class="text-toggle-btn text-toggle-btn--lg" data-size="text-lg">A</button>
+      </div>
+      <span style="font-size:var(--text-xs);color:var(--text-tertiary);">Always available</span>
+    </div>
+  </nav>
+
+  <main class="stage-page">
+    <div class="stage-container">
+
+      <!-- Header -->
+      <div class="aid-header fade-up">
+        <h1 class="aid-title">Before you go in.</h1>
+        <p class="aid-subtitle">Five questions to answer before any performance conversation. You don't need to memorize this. Open it, answer it, go in.</p>
+        <p class="aid-subtitle" style="margin-top:var(--space-3);color:var(--text-tertiary);font-size:var(--text-sm);">Have someone specific in mind? Use their real situation. Still building the skill? Pick a past conversation or imagine a realistic one — the practice works either way.</p>
+      </div>
+
+      <!-- Progress -->
+      <div class="aid-progress fade-up">
+        <div class="aid-progress-bar"><div class="aid-progress-fill" id="progress-fill"></div></div>
+        <div class="aid-progress-text">
+          <span class="aid-progress-count"><span id="progress-count">0</span> of 5 ready</span>
+          <span class="aid-progress-ready" id="progress-ready">You're ready. Go in.</span>
+        </div>
+      </div>
+
+      <!-- Cards -->
+      <div class="aid-cards">
+
+        <!-- 1 — Observe -->
+        <div class="aid-card aid-card--o fade-up" data-card="1">
+          <div class="aid-card-header">
+            <div class="aid-number aid-number--o">O</div>
+            <div class="aid-card-title">What specific behavior did I observe?</div>
+            <div class="aid-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+          </div>
+          <p class="aid-card-body">Not a feeling. Not a judgment. Something a camera could have recorded.</p>
+          <div class="aid-template">
+            <div class="aid-template-text">"I noticed _______ on _______."</div>
+          </div>
+          <textarea class="aid-input" placeholder="Real or practice — write what you'd say..."></textarea>
+          <p class="aid-note">If you can't complete this sentence &mdash; you're not ready yet. Gather more information first.</p>
+        </div>
+
+        <!-- 2 — Name the impact -->
+        <div class="aid-card aid-card--n fade-up" data-card="2">
+          <div class="aid-card-header">
+            <div class="aid-number aid-number--n">N</div>
+            <div class="aid-card-title">What did that behavior cost?</div>
+            <div class="aid-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+          </div>
+          <p class="aid-card-body">Not how it made you feel. What did it cost the team, the client, the business?</p>
+          <div class="aid-template">
+            <div class="aid-template-text">"When this happens, it means _______."</div>
+          </div>
+          <textarea class="aid-input" placeholder="Write the business consequence..."></textarea>
+          <p class="aid-note">If your answer is a feeling &mdash; keep going. Find the consequence underneath.</p>
+        </div>
+
+        <!-- 3 — Ask first -->
+        <div class="aid-card aid-card--a1 fade-up" data-card="3">
+          <div class="aid-card-header">
+            <div class="aid-number aid-number--a1">A</div>
+            <div class="aid-card-title">What question haven't I asked yet?</div>
+            <div class="aid-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+          </div>
+          <p class="aid-card-body">Before you walk in with a solution &mdash; write the question you'll ask first.</p>
+          <div class="aid-template">
+            <div class="aid-template-text">"Is there something _______ I'm not aware of?"</div>
+          </div>
+          <textarea class="aid-input" placeholder="Write your question..."></textarea>
+          <p class="aid-note">Do not skip this. Whatever you think the answer is &mdash; ask anyway.</p>
+        </div>
+
+        <!-- 4 — Agree on next steps -->
+        <div class="aid-card aid-card--a2 fade-up" data-card="4">
+          <div class="aid-card-header">
+            <div class="aid-number aid-number--a2">A</div>
+            <div class="aid-card-title">What will we each do next?</div>
+            <div class="aid-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+          </div>
+          <p class="aid-card-body">Draft your close before you go in.</p>
+          <div class="aid-template">
+            <div class="aid-template-text">"I'll _______ by _______.<br>Can you _______ by _______?"</div>
+          </div>
+          <textarea class="aid-input" placeholder="Draft your specific next steps..."></textarea>
+          <p class="aid-note">Named person. Named action. Named date. Both sides. Both accountable.</p>
+        </div>
+
+        <!-- 5 — Meta question -->
+        <div class="aid-card aid-card--meta fade-up" data-card="5">
+          <div class="aid-card-header">
+            <div class="aid-number aid-number--meta">?</div>
+            <div class="aid-card-title">What am I assuming that might be wrong?</div>
+            <div class="aid-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+          </div>
+          <p class="aid-card-body">This question isn't in any framework. It's the one that makes all four steps above work.</p>
+          <textarea class="aid-input" placeholder="Write one assumption you're bringing in..."></textarea>
+          <p class="aid-note">Be willing to discover you're wrong about it.</p>
+        </div>
+
+      </div>
+
+      <!-- Footer -->
+      <div class="aid-footer fade-up">
+        <div class="aid-footer-label">ONAA framework &middot; NovaBridge manager program</div>
+        <div style="display:flex;justify-content:center;gap:var(--space-3);flex-wrap:wrap;">
+          <button class="btn btn--primary" id="btn-print">Print / Save as PDF &rarr;</button>
+          <button class="btn btn--ghost" id="btn-reset">Clear all &amp; start fresh</button>
+        </div>
+        <p class="aid-private-note">Everything you write here stays in your browser. Nothing is sent or saved.</p>
+      </div>
+
+    </div>
+  </main>
+
+  <script src="text-size.js"></script>
+  <script src="onaa-ref.js"></script>
+  <script>
+    // Staggered reveal
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.fade-up').forEach((el, i) => {
+        setTimeout(() => el.classList.add('visible'), 150 + i * 120);
+      });
+      loadState();
+    });
+
+    // ── Checklist logic ──
+
+    const cards = document.querySelectorAll('.aid-card[data-card]');
+    const total = cards.length;
+
+    function updateProgress() {
+      const checked = document.querySelectorAll('.aid-card.checked').length;
+      document.getElementById('progress-count').textContent = checked;
+      document.getElementById('progress-fill').style.width = (checked / total * 100) + '%';
+
+      const ready = document.getElementById('progress-ready');
+      if (checked === total) {
+        ready.classList.add('show');
+      } else {
+        ready.classList.remove('show');
+      }
+
+      saveState();
+    }
+
+    // Click header to toggle check
+    cards.forEach(card => {
+      const header = card.querySelector('.aid-card-header');
+      header.addEventListener('click', (e) => {
+        // Don't toggle when clicking inside the textarea
+        if (e.target.closest('.aid-input')) return;
+        card.classList.toggle('checked');
+        updateProgress();
+      });
+    });
+
+    // ── Persist state to localStorage ──
+
+    function saveState() {
+      const state = {};
+      cards.forEach(card => {
+        const id = card.dataset.card;
+        const textarea = card.querySelector('.aid-input');
+        state[id] = {
+          checked: card.classList.contains('checked'),
+          text: textarea ? textarea.value : ''
+        };
+      });
+      localStorage.setItem('nb-jobaid', JSON.stringify(state));
+    }
+
+    function loadState() {
+      try {
+        const state = JSON.parse(localStorage.getItem('nb-jobaid'));
+        if (!state) return;
+        cards.forEach(card => {
+          const id = card.dataset.card;
+          if (state[id]) {
+            if (state[id].checked) card.classList.add('checked');
+            const textarea = card.querySelector('.aid-input');
+            if (textarea && state[id].text) textarea.value = state[id].text;
+          }
+        });
+        updateProgress();
+      } catch (e) {}
+    }
+
+    // Save text on input
+    document.querySelectorAll('.aid-input').forEach(input => {
+      input.addEventListener('input', saveState);
+    });
+
+    // ── Reset ──
+
+    document.getElementById('btn-reset').addEventListener('click', () => {
+      cards.forEach(card => {
+        card.classList.remove('checked');
+        const textarea = card.querySelector('.aid-input');
+        if (textarea) textarea.value = '';
+      });
+      localStorage.removeItem('nb-jobaid');
+      updateProgress();
+    });
+
+    // ── Print ──
+
+    document.getElementById('btn-print').addEventListener('click', () => {
+      window.print();
+    });
+  </script>
+
+</body>
+</html>

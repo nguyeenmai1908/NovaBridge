@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The conversation you've been avoiding — NovaBridge</title>
+  <link rel="stylesheet" href="tokens.css">
+  <style>
+    /* ── Page ── */
+    .intro-page {
+      position: relative; z-index: 1;
+      min-height: calc(100vh - var(--nav-height));
+      display: flex; align-items: center; justify-content: center;
+      padding: var(--space-8) var(--space-4);
+    }
+
+    .intro-container {
+      max-width: var(--max-width-wide); width: 100%;
+    }
+
+    /* ── Calendar card ── */
+    .cal {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+    }
+
+    /* ── Cal header (colored bar) ── */
+    .cal-bar {
+      height: 5px;
+      background: var(--grad-primary);
+    }
+
+    .cal-header {
+      padding: var(--space-5) var(--space-6) var(--space-4);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .cal-org {
+      font-size: 10px; font-weight: var(--weight-semi);
+      letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--text-tertiary); margin-bottom: var(--space-3);
+    }
+
+    .cal-title {
+      font-size: clamp(22px, 5vw, var(--text-2xl));
+      font-weight: var(--weight-semi);
+      line-height: var(--leading-tight);
+      color: var(--text-primary);
+      margin-bottom: var(--space-2);
+    }
+
+    .cal-subtitle {
+      font-size: var(--text-sm);
+      color: var(--text-secondary);
+    }
+
+    /* ── Cal meta rows ── */
+    .cal-meta {
+      padding: var(--space-4) var(--space-6);
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex; flex-direction: column; gap: var(--space-3);
+    }
+
+    .cal-row {
+      display: flex; align-items: flex-start; gap: var(--space-3);
+    }
+
+    .cal-icon {
+      width: 18px; height: 18px; flex-shrink: 0;
+      margin-top: 1px;
+      stroke: var(--text-tertiary); fill: none;
+      stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
+    }
+
+    .cal-row-text {
+      font-size: var(--text-sm); color: var(--text-secondary);
+      line-height: var(--leading-base);
+    }
+
+    .cal-row-label {
+      font-size: var(--text-xs); color: var(--text-tertiary);
+      margin-bottom: 1px;
+    }
+
+    .cal-row-value {
+      font-size: var(--text-sm); color: var(--text-primary);
+      font-weight: var(--weight-medium);
+    }
+
+    /* ── Agenda section ── */
+    .cal-agenda {
+      padding: var(--space-5) var(--space-6);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .cal-agenda-label {
+      font-size: 10px; font-weight: var(--weight-semi);
+      letter-spacing: 0.06em; text-transform: uppercase;
+      color: var(--text-tertiary); margin-bottom: var(--space-4);
+    }
+
+    .agenda-list {
+      display: flex; flex-direction: column; gap: 0;
+    }
+
+    .agenda-item {
+      display: flex; gap: var(--space-3);
+      padding: var(--space-3) 0;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .agenda-item:last-child { border-bottom: none; }
+
+    .agenda-icon {
+      width: 16px; height: 16px; flex-shrink: 0; margin-top: 3px;
+      stroke: var(--indigo-400); fill: none;
+      stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round;
+    }
+
+    .agenda-text {
+      font-size: var(--text-sm); color: var(--text-secondary);
+      line-height: var(--leading-base); flex: 1;
+    }
+
+    .agenda-text .quiet {
+      color: var(--text-tertiary); font-size: var(--text-xs);
+      display: block; margin-top: 1px;
+    }
+
+    /* ── Course map (inside agenda) ── */
+    .cal-map {
+      padding: var(--space-5) var(--space-6);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .cal-map-label {
+      font-size: 10px; font-weight: var(--weight-semi);
+      letter-spacing: 0.06em; text-transform: uppercase;
+      color: var(--text-tertiary); margin-bottom: var(--space-4);
+    }
+
+    .map-list { display: flex; flex-direction: column; gap: var(--space-2); }
+
+    .map-link { text-decoration: none; color: inherit; display: block; }
+
+    .map-item {
+      display: flex; gap: var(--space-3); align-items: center;
+      padding: var(--space-3) var(--space-3);
+      border-radius: var(--radius-md);
+      transition: background var(--transition-fast);
+    }
+
+    .map-item--ready { cursor: pointer; }
+    .map-item--ready:hover { background: rgba(255,255,255,0.04); }
+
+    .map-item--core {
+      background: rgba(99,102,241,0.06);
+      border-radius: var(--radius-md);
+    }
+    .map-item--core:hover { background: rgba(99,102,241,0.10); }
+
+    .map-dot {
+      width: 24px; height: 24px; border-radius: var(--radius-pill);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; font-weight: var(--weight-semi); flex-shrink: 0;
+      background: rgba(99,102,241,0.10);
+      border: 1px solid var(--border-indigo);
+      color: var(--indigo-300);
+    }
+
+    .map-item--core .map-dot {
+      background: var(--grad-primary); border: none;
+      color: #fff; box-shadow: var(--glow-sm);
+    }
+
+    .map-item--aid .map-dot {
+      background: rgba(255,255,255,0.04);
+      border-color: var(--border-default);
+      color: var(--text-tertiary); font-size: 12px;
+    }
+
+    .map-text { flex: 1; min-width: 0; }
+
+    .map-name {
+      font-size: var(--text-sm); color: var(--text-primary);
+      font-weight: var(--weight-medium);
+    }
+
+    .map-time {
+      font-size: var(--text-xs); color: var(--text-tertiary);
+    }
+
+    .map-arrow {
+      font-size: var(--text-base); color: var(--text-hint);
+      transition: color var(--transition-fast), transform var(--transition-fast);
+    }
+    .map-item--ready:hover .map-arrow {
+      color: var(--indigo-300); transform: translateX(2px);
+    }
+
+    .map-badges {
+      display: flex; gap: var(--space-1); margin-top: 2px;
+    }
+
+    .map-badge {
+      font-size: 9px; font-weight: var(--weight-semi);
+      letter-spacing: 0.02em; padding: 1px 6px;
+      border-radius: var(--radius-pill);
+    }
+    .map-badge--sim { background: rgba(236,72,153,0.10); color: var(--pink-300); border: 1px solid var(--border-pink); }
+    .map-badge--ai { background: rgba(6,182,212,0.10); color: var(--cyan-300); border: 1px solid var(--border-cyan); }
+
+    /* ── Privacy note ── */
+    .cal-note {
+      padding: var(--space-4) var(--space-6);
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex; gap: var(--space-3); align-items: flex-start;
+    }
+
+    .cal-note-icon {
+      width: 16px; height: 16px; flex-shrink: 0; margin-top: 2px;
+      stroke: var(--text-tertiary); fill: none;
+      stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
+    }
+
+    .cal-note-text {
+      font-size: var(--text-xs); color: var(--text-tertiary);
+      line-height: var(--leading-base);
+    }
+
+    /* ── Accept button area ── */
+    .cal-footer {
+      padding: var(--space-5) var(--space-6);
+      display: flex; flex-direction: column; align-items: center; gap: var(--space-3);
+    }
+
+    .cal-footer .btn { width: 100%; }
+
+    .cal-save-note {
+      font-size: var(--text-xs); color: var(--text-hint);
+    }
+
+    /* ── Fade ── */
+    .fade-up {
+      opacity: 0; transform: translateY(12px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+    .fade-up.visible { opacity: 1; transform: translateY(0); }
+
+    @media (max-width: 480px) {
+      .intro-page { padding: var(--space-5) var(--space-4); align-items: flex-start; }
+      .cal-header, .cal-meta, .cal-agenda, .cal-map, .cal-note, .cal-footer {
+        padding-left: var(--space-4); padding-right: var(--space-4);
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bg-orbs">
+    <div class="orb orb-1"></div><div class="orb orb-2"></div><div class="orb orb-3"></div>
+  </div>
+
+  <nav class="nav">
+    <span class="nav-brand">NovaBridge &middot; People Development</span>
+    <div style="display:flex;align-items:center;gap:var(--space-4);">
+      <div class="text-toggle">
+        <button class="text-toggle-btn text-toggle-btn--sm" data-size="text-sm">A</button>
+        <button class="text-toggle-btn text-toggle-btn--md" data-size="text-md">A</button>
+        <button class="text-toggle-btn text-toggle-btn--lg" data-size="text-lg">A</button>
+      </div>
+      <a href="job-aid.html" class="nav-link">Job aid</a>
+    </div>
+  </nav>
+
+  <main class="intro-page">
+    <div class="intro-container">
+
+      <div class="cal fade-up">
+
+        <!-- Color bar -->
+        <div class="cal-bar"></div>
+
+        <!-- Header -->
+        <div class="cal-header">
+          <div class="cal-org">NovaBridge &middot; People Development</div>
+          <h1 class="cal-title">The conversation you've been avoiding</h1>
+          <p class="cal-subtitle">A program for new managers at NovaBridge</p>
+        </div>
+
+        <!-- Meta rows -->
+        <div class="cal-meta">
+          <div class="cal-row">
+            <svg class="cal-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <div>
+              <div class="cal-row-label">Duration</div>
+              <div class="cal-row-value">45 minutes &middot; self-paced</div>
+            </div>
+          </div>
+          <div class="cal-row">
+            <svg class="cal-icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <div>
+              <div class="cal-row-label">When</div>
+              <div class="cal-row-value" id="cal-date">Today</div>
+            </div>
+          </div>
+          <div class="cal-row">
+            <svg class="cal-icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <div>
+              <div class="cal-row-label">For</div>
+              <div class="cal-row-value">New managers</div>
+            </div>
+          </div>
+          <div class="cal-row">
+            <svg class="cal-icon" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            <div>
+              <div class="cal-row-label">Includes</div>
+              <div class="cal-row-value">Live simulation &middot; AI coaching</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Agenda -->
+        <div class="cal-agenda fade-up">
+          <div class="cal-agenda-label">When you leave, you will have</div>
+          <div class="agenda-list">
+            <div class="agenda-item">
+              <svg class="agenda-icon" viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg>
+              <div class="agenda-text">Understood why this conversation is hard for you specifically <span class="quiet">Not a character problem &mdash; a design problem</span></div>
+            </div>
+            <div class="agenda-item">
+              <svg class="agenda-icon" viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg>
+              <div class="agenda-text">A four-part framework ready before your next 1:1</div>
+            </div>
+            <div class="agenda-item">
+              <svg class="agenda-icon" viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg>
+              <div class="agenda-text">Practiced a realistic performance conversation safely</div>
+            </div>
+            <div class="agenda-item">
+              <svg class="agenda-icon" viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg>
+              <div class="agenda-text">One specific commitment for this week</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Course map -->
+        <div class="cal-map fade-up">
+          <div class="cal-map-label">Agenda</div>
+          <div class="map-list">
+            <a href="stage1.html" class="map-link">
+              <div class="map-item map-item--ready">
+                <div class="map-dot">1</div>
+                <div class="map-text">
+                  <div class="map-name">Recognition</div>
+                  <div class="map-time">8 min &middot; You've been here before</div>
+                </div>
+                <div class="map-arrow">&rsaquo;</div>
+              </div>
+            </a>
+            <a href="stage2.html" class="map-link">
+              <div class="map-item map-item--ready">
+                <div class="map-dot">2</div>
+                <div class="map-text">
+                  <div class="map-name">Understanding</div>
+                  <div class="map-time">10 min &middot; Why it's actually hard</div>
+                </div>
+                <div class="map-arrow">&rsaquo;</div>
+              </div>
+            </a>
+            <a href="stage3.html" class="map-link">
+              <div class="map-item map-item--ready">
+                <div class="map-dot">3</div>
+                <div class="map-text">
+                  <div class="map-name">The framework</div>
+                  <div class="map-time">10 min &middot; Here's what to say</div>
+                </div>
+                <div class="map-arrow">&rsaquo;</div>
+              </div>
+            </a>
+            <a href="stage4.html" class="map-link">
+              <div class="map-item map-item--core map-item--ready">
+                <div class="map-dot">4</div>
+                <div class="map-text">
+                  <div class="map-name">Practice</div>
+                  <div class="map-time">15 min &middot; Now try it for real</div>
+                  <div class="map-badges">
+                    <span class="map-badge map-badge--sim">Simulation</span>
+                  </div>
+                </div>
+                <div class="map-arrow">&rsaquo;</div>
+              </div>
+            </a>
+            <a href="stage5.html" class="map-link">
+              <div class="map-item map-item--ready">
+                <div class="map-dot">5</div>
+                <div class="map-text">
+                  <div class="map-name">Transfer</div>
+                  <div class="map-time">7 min &middot; Your commitment</div>
+                </div>
+                <div class="map-arrow">&rsaquo;</div>
+              </div>
+            </a>
+            <a href="job-aid.html" class="map-link">
+              <div class="map-item map-item--ready">
+                <div class="map-dot map-item--aid" style="background:rgba(255,255,255,0.04);border-color:var(--border-default);color:var(--text-tertiary);font-size:12px;">&infin;</div>
+                <div class="map-text">
+                  <div class="map-name" style="color:var(--text-secondary);">Job aid</div>
+                  <div class="map-time">Always available &middot; Checklist</div>
+                </div>
+                <div class="map-arrow">&rsaquo;</div>
+              </div>
+            </a>
+          </div>
+        </div>
+
+        <!-- Privacy note -->
+        <div class="cal-note fade-up">
+          <svg class="cal-note-icon" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <div class="cal-note-text">
+            The simulation is private. Nothing you do or say is reported to your manager or HR. You can replay as many times as you like.
+          </div>
+        </div>
+
+        <!-- Accept button -->
+        <div class="cal-footer fade-up">
+          <button class="btn btn--primary" id="begin-btn">
+            Accept &amp; begin &rarr;
+            <span class="btn-pulse-ring"></span>
+          </button>
+          <span class="cal-save-note">Progress saves automatically</span>
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+
+  <script src="text-size.js"></script>
+  <script>
+    // Set today's date
+    const dateEl = document.getElementById('cal-date');
+    const now = new Date();
+    const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    dateEl.textContent = days[now.getDay()] + ', ' + months[now.getMonth()] + ' ' + now.getDate();
+
+    // Staggered fade-in
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.fade-up').forEach((el, i) => {
+        setTimeout(() => el.classList.add('visible'), 200 + i * 150);
+      });
+    });
+
+    // Begin
+    document.getElementById('begin-btn').addEventListener('click', () => {
+      window.location.href = 'stage1.html';
+    });
+  </script>
+
+</body>
+</html>

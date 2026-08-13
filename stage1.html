@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stage 1 — Recognition · NovaBridge</title>
+  <link rel="stylesheet" href="tokens.css">
+  <style>
+    /* ── Stage 1 layout ── */
+
+    .stage-page {
+      position: relative;
+      z-index: 1;
+      min-height: calc(100vh - var(--nav-height));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-8) var(--space-4);
+    }
+
+    .stage-container {
+      max-width: var(--max-width-course);
+      width: 100%;
+    }
+
+    /* ── Screens ── */
+
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    /* ── Character scene block ── */
+
+    .char-scene-block {
+      display: flex;
+      gap: var(--space-5);
+      align-items: flex-start;
+      margin-bottom: var(--space-8);
+    }
+
+    .char-portrait {
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-2);
+      padding-top: var(--space-1);
+    }
+
+    .char-portrait svg {
+      filter: drop-shadow(0 0 12px var(--char-glow, rgba(99,102,241,0.3)));
+    }
+
+    .char-name-tag {
+      font-size: 10px;
+      font-weight: var(--weight-semi);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .char-name-tag--sarah { color: var(--rose-300); }
+    .char-name-tag--marcus { color: var(--indigo-300); }
+    .char-name-tag--amara { color: var(--cyan-300); }
+
+    .char-scene-text {
+      flex: 1;
+      min-width: 0;
+    }
+
+    /* ── Scene text ── */
+
+    .scene { margin-bottom: var(--space-8); }
+
+    /* ── Narrative card — shared base ── */
+
+    .narrative-card {
+      border-radius: var(--radius-lg);
+      padding: var(--space-5) var(--space-6);
+      margin-bottom: var(--space-8);
+    }
+
+    .narrative-card__label {
+      display: block;
+      font-size: var(--text-xs);
+      font-weight: var(--weight-semi);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: var(--space-3);
+    }
+
+    /* ── Interiority — coral accent, italic ── */
+    /* When standalone (not on a char-card), apply full coral treatment */
+
+    .narrative-card--interior:not(.char-card) {
+      background: rgba(236,72,153,0.06);
+      border: 1px solid rgba(236,72,153,0.10);
+      border-left: 3px solid var(--rose-400);
+    }
+
+    /* When on a char-card, the card already provides background + border */
+
+    .narrative-card--interior .narrative-card__label {
+      color: var(--rose-300);
+    }
+
+    .narrative-card--interior .char-scene-text p,
+    .narrative-card--interior > p {
+      font-style: italic;
+    }
+
+    /* ── Observed — neutral, no coral ── */
+
+    .narrative-card--observed {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-left: 3px solid rgba(255,255,255,0.10);
+    }
+
+    .narrative-card--observed .narrative-card__label {
+      color: var(--text-tertiary);
+    }
+
+    .scene p,
+    .char-scene-text p {
+      font-size: var(--text-base);
+      color: var(--text-secondary);
+      line-height: var(--leading-loose);
+      margin-bottom: var(--space-4);
+    }
+
+    .scene p:last-child,
+    .char-scene-text p:last-child {
+      margin-bottom: 0;
+    }
+
+    .scene-break {
+      width: 40px;
+      height: 1px;
+      background: var(--border-default);
+      border: none;
+      margin: var(--space-8) 0;
+    }
+
+    .scene-emphasis {
+      color: var(--text-primary) !important;
+      font-weight: var(--weight-medium);
+    }
+
+    .scene-quiet {
+      color: var(--text-tertiary) !important;
+      font-style: italic;
+    }
+
+    /* ── Narration ── */
+
+    .narration {
+      text-align: center;
+      padding: var(--space-6) 0;
+    }
+
+    .narration p {
+      font-size: var(--text-md);
+      color: var(--text-primary);
+      line-height: var(--leading-base);
+      max-width: 620px;
+      margin: 0 auto var(--space-4);
+    }
+
+    .narration p:last-child { margin-bottom: 0; }
+    .narration--secondary p { color: var(--text-secondary); }
+
+    /* ── Button area ── */
+
+    .stage-action {
+      text-align: center;
+      padding-top: var(--space-6);
+    }
+
+    /* ── Bridge narration ── */
+
+    .narration-bridge {
+      font-size: var(--text-base);
+      color: var(--text-secondary);
+      margin-bottom: var(--space-6);
+    }
+
+    /* ── Name highlights (color-coded) ── */
+
+    .name-highlight { color: var(--indigo-300); font-weight: var(--weight-medium); }
+    .name--sarah  { color: var(--rose-300); }
+    .name--marcus { color: var(--indigo-300); }
+    .name--amara  { color: var(--cyan-300); }
+
+    /* ── Quote ── */
+
+    .scene-quote {
+      color: var(--indigo-300) !important;
+      font-style: italic;
+      padding-left: var(--space-4);
+      border-left: 2px solid var(--border-indigo);
+    }
+
+    /* ── Fade-in ── */
+
+    .fade-up {
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+
+    .fade-up.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ── Progress dots ── */
+
+    .stage-progress {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
+      padding-bottom: var(--space-6);
+    }
+
+    .stage-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.10);
+      transition: all var(--transition-base);
+    }
+
+    .stage-dot.active {
+      background: var(--indigo-500);
+      box-shadow: var(--glow-sm);
+    }
+
+    .stage-dot.done {
+      background: rgba(99, 102, 241, 0.35);
+    }
+
+    /* ── Three portraits row (closing narration) ── */
+
+    .trio-row {
+      display: flex;
+      justify-content: center;
+      gap: var(--space-8);
+      padding: var(--space-4) 0 var(--space-2);
+    }
+
+    .trio-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .trio-item svg {
+      opacity: 0.85;
+    }
+
+    /* ── Indent to align with char-scene-text ── */
+
+    .align-text {
+      margin-left: calc(72px + var(--space-5)); /* portrait width + gap */
+    }
+
+    /* ── Back button ── */
+
+    .btn-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: none;
+      border: none;
+      font-family: var(--font);
+      font-size: var(--text-sm);
+      color: var(--text-tertiary);
+      cursor: pointer;
+      padding: 4px 0;
+      margin-bottom: var(--space-4);
+      transition: color var(--transition-fast);
+    }
+
+    .btn-back:hover { color: var(--text-secondary); }
+
+    .btn-back svg {
+      width: 16px;
+      height: 16px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    /* ── Responsive ── */
+
+    @media (max-width: 480px) {
+      .stage-page {
+        align-items: flex-start;
+        padding-top: var(--space-6);
+      }
+
+      .char-scene-block {
+        flex-direction: column;
+        align-items: center;
+        text-align: left;
+      }
+
+      .char-portrait {
+        padding-top: 0;
+        margin-bottom: var(--space-2);
+      }
+
+      .trio-row {
+        gap: var(--space-5);
+      }
+
+      .trio-item svg {
+        width: 52px;
+        height: 52px;
+      }
+
+      .align-text {
+        margin-left: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Background orbs -->
+  <div class="bg-orbs" data-stage="1">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="nav">
+    <a href="index.html" class="nav-brand nav-link" style="font-size:var(--text-sm);font-weight:var(--weight-semi);color:var(--text-primary);text-decoration:none;">&larr; Course overview</a>
+    <div class="progress-nav">
+      <div class="prog-dot prog-dot--active">1</div>
+      <div class="prog-line"></div>
+      <div class="prog-dot prog-dot--upcoming">2</div>
+      <div class="prog-line"></div>
+      <div class="prog-dot prog-dot--upcoming">3</div>
+      <div class="prog-line"></div>
+      <div class="prog-dot prog-dot--upcoming">4</div>
+      <div class="prog-line"></div>
+      <div class="prog-dot prog-dot--upcoming">5</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:var(--space-4);">
+      <div class="text-toggle">
+        <button class="text-toggle-btn text-toggle-btn--sm" data-size="text-sm">A</button>
+        <button class="text-toggle-btn text-toggle-btn--md" data-size="text-md">A</button>
+        <button class="text-toggle-btn text-toggle-btn--lg" data-size="text-lg">A</button>
+      </div>
+      <a href="job-aid.html" class="nav-link">Job aid</a>
+    </div>
+  </nav>
+
+  <!-- SVG definitions (hidden) -->
+  <svg xmlns="http://www.w3.org/2000/svg" style="display:none;">
+    <defs>
+      <!-- Sarah — rose/pink, shoulder-length hair, warm -->
+      <symbol id="icon-sarah" viewBox="0 0 72 72">
+        <circle cx="36" cy="36" r="36" fill="rgba(236,72,153,0.10)"/>
+        <circle cx="36" cy="36" r="33" fill="none" stroke="rgba(236,72,153,0.25)" stroke-width="1"/>
+        <!-- Hair back -->
+        <ellipse cx="36" cy="30" rx="17" ry="18" fill="#7c2d4e"/>
+        <!-- Hair sides flowing down -->
+        <path d="M19 30 Q17 42 21 50" stroke="#7c2d4e" stroke-width="5" fill="none" stroke-linecap="round"/>
+        <path d="M53 30 Q55 42 51 50" stroke="#7c2d4e" stroke-width="5" fill="none" stroke-linecap="round"/>
+        <!-- Neck -->
+        <rect x="31" y="43" width="10" height="6" rx="3" fill="#d4a27a"/>
+        <!-- Shoulders / top -->
+        <path d="M22 54 Q26 48 36 48 Q46 48 50 54 Q52 58 52 62 L20 62 Q20 58 22 54Z" fill="rgba(236,72,153,0.35)"/>
+        <!-- Face -->
+        <ellipse cx="36" cy="33" rx="13" ry="14" fill="#d4a27a"/>
+        <!-- Hair front -->
+        <path d="M23 28 Q24 18 36 17 Q48 18 49 28 Q47 24 42 22 Q38 24 36 21 Q34 24 30 22 Q25 24 23 28Z" fill="#7c2d4e"/>
+        <!-- Eyes -->
+        <ellipse cx="30.5" cy="33" rx="2" ry="2.2" fill="#2d1a0e">
+          <animate attributeName="ry" values="2.2;0.3;2.2" dur="4s" repeatCount="indefinite" begin="2s"/>
+        </ellipse>
+        <ellipse cx="41.5" cy="33" rx="2" ry="2.2" fill="#2d1a0e">
+          <animate attributeName="ry" values="2.2;0.3;2.2" dur="4s" repeatCount="indefinite" begin="2s"/>
+        </ellipse>
+        <!-- Eye shine -->
+        <circle cx="31.5" cy="32" r="0.8" fill="rgba(255,255,255,0.6)"/>
+        <circle cx="42.5" cy="32" r="0.8" fill="rgba(255,255,255,0.6)"/>
+        <!-- Subtle smile -->
+        <path d="M32 38.5 Q36 41 40 38.5" stroke="#b07a5a" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+        <!-- Slight blush -->
+        <circle cx="27" cy="36" r="2.5" fill="rgba(236,72,153,0.15)"/>
+        <circle cx="45" cy="36" r="2.5" fill="rgba(236,72,153,0.15)"/>
+      </symbol>
+
+      <!-- Marcus — indigo, short hair, angular features -->
+      <symbol id="icon-marcus" viewBox="0 0 72 72">
+        <circle cx="36" cy="36" r="36" fill="rgba(99,102,241,0.18)"/>
+        <circle cx="36" cy="36" r="33" fill="none" stroke="rgba(99,102,241,0.40)" stroke-width="1"/>
+        <!-- Hair -->
+        <path d="M22 28 Q23 16 36 15 Q49 16 50 28 Q50 24 47 21 Q43 18 36 17 Q29 18 25 21 Q22 24 22 28Z" fill="#2d2260"/>
+        <ellipse cx="36" cy="24" rx="15" ry="8" fill="#2d2260"/>
+        <!-- Neck -->
+        <rect x="31" y="44" width="10" height="6" rx="3" fill="#b8956a"/>
+        <!-- Shoulders -->
+        <path d="M20 54 Q25 48 36 48 Q47 48 52 54 Q54 58 54 62 L18 62 Q18 58 20 54Z" fill="rgba(99,102,241,0.55)"/>
+        <!-- Face -->
+        <ellipse cx="36" cy="33" rx="14" ry="14.5" fill="#b8956a"/>
+        <!-- Hair overlay -->
+        <path d="M22 28 Q23 19 36 18 Q49 19 50 28 L50 25 Q49 17 36 16 Q23 17 22 25Z" fill="#2d2260"/>
+        <!-- Eyebrows (thicker, more angular) -->
+        <path d="M27 29 L33 28.5" stroke="#2d2260" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M39 28.5 L45 29" stroke="#2d2260" stroke-width="1.5" stroke-linecap="round"/>
+        <!-- Eyes -->
+        <ellipse cx="30" cy="33" rx="2.2" ry="2.2" fill="#1a1230">
+          <animate attributeName="ry" values="2.2;0.3;2.2" dur="5s" repeatCount="indefinite" begin="3s"/>
+        </ellipse>
+        <ellipse cx="42" cy="33" rx="2.2" ry="2.2" fill="#1a1230">
+          <animate attributeName="ry" values="2.2;0.3;2.2" dur="5s" repeatCount="indefinite" begin="3s"/>
+        </ellipse>
+        <!-- Eye shine -->
+        <circle cx="31" cy="32" r="0.8" fill="rgba(255,255,255,0.6)"/>
+        <circle cx="43" cy="32" r="0.8" fill="rgba(255,255,255,0.6)"/>
+        <!-- Neutral mouth -->
+        <path d="M32 39.5 Q36 40.5 40 39.5" stroke="#8a6a45" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+        <!-- Glasses -->
+        <rect x="26" y="30" width="9" height="7" rx="3" fill="none" stroke="rgba(165,180,252,0.75)" stroke-width="0.8"/>
+        <rect x="37" y="30" width="9" height="7" rx="3" fill="none" stroke="rgba(165,180,252,0.75)" stroke-width="0.8"/>
+        <line x1="35" y1="33" x2="37" y2="33" stroke="rgba(165,180,252,0.6)" stroke-width="0.6"/>
+      </symbol>
+
+      <!-- Amara — cyan/teal, headwrap, composed -->
+      <symbol id="icon-amara" viewBox="0 0 72 72">
+        <circle cx="36" cy="36" r="36" fill="rgba(6,182,212,0.18)"/>
+        <circle cx="36" cy="36" r="33" fill="none" stroke="rgba(6,182,212,0.40)" stroke-width="1"/>
+        <!-- Headwrap -->
+        <path d="M20 30 Q21 14 36 13 Q51 14 52 30 L52 27 Q51 15 36 14 Q21 15 20 27Z" fill="#0ea5c2"/>
+        <ellipse cx="36" cy="24" rx="17" ry="10" fill="#0ea5c2"/>
+        <!-- Wrap folds detail -->
+        <path d="M24 20 Q30 18 36 20 Q42 18 48 20" stroke="rgba(255,255,255,0.20)" stroke-width="0.8" fill="none"/>
+        <path d="M22 24 Q30 21 36 23 Q42 21 50 24" stroke="rgba(255,255,255,0.14)" stroke-width="0.8" fill="none"/>
+        <!-- Wrap knot accent -->
+        <circle cx="44" cy="19" r="2.5" fill="#14b8a6"/>
+        <circle cx="44" cy="19" r="1.5" fill="#0ea5c2"/>
+        <!-- Neck -->
+        <rect x="31" y="44" width="10" height="6" rx="3" fill="#8b5e3c"/>
+        <!-- Shoulders -->
+        <path d="M21 54 Q26 48 36 48 Q46 48 51 54 Q53 58 53 62 L19 62 Q19 58 21 54Z" fill="rgba(6,182,212,0.50)"/>
+        <!-- Earrings -->
+        <circle cx="21.5" cy="36" r="1.5" fill="rgba(251,191,36,0.8)"/>
+        <circle cx="50.5" cy="36" r="1.5" fill="rgba(251,191,36,0.8)"/>
+        <!-- Face -->
+        <ellipse cx="36" cy="34" rx="13.5" ry="13" fill="#8b5e3c"/>
+        <!-- Eyes -->
+        <ellipse cx="30.5" cy="34" rx="2" ry="2.3" fill="#1a0e06">
+          <animate attributeName="ry" values="2.3;0.3;2.3" dur="4.5s" repeatCount="indefinite" begin="1.5s"/>
+        </ellipse>
+        <ellipse cx="41.5" cy="34" rx="2" ry="2.3" fill="#1a0e06">
+          <animate attributeName="ry" values="2.3;0.3;2.3" dur="4.5s" repeatCount="indefinite" begin="1.5s"/>
+        </ellipse>
+        <!-- Eye shine -->
+        <circle cx="31.5" cy="33" r="0.8" fill="rgba(255,255,255,0.65)"/>
+        <circle cx="42.5" cy="33" r="0.8" fill="rgba(255,255,255,0.65)"/>
+        <!-- Composed expression -->
+        <path d="M33 40 Q36 41 39 40" stroke="#6b4528" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+      </symbol>
+    </defs>
+  </svg>
+
+  <main class="stage-page">
+    <div class="stage-container">
+
+      <!-- ============================================
+           SCREEN 1.1 — Sarah's scene
+           ============================================ -->
+      <div class="screen active" id="screen-1-1">
+
+        <div class="stage-progress">
+          <div class="stage-dot active"></div>
+          <div class="stage-dot"></div>
+        </div>
+
+        <!-- Scene 1: Before the meeting — with Sarah portrait -->
+        <div class="char-scene-block char-card char-card--sarah narrative-card--interior fade-up" id="s1-scene1">
+          <div class="char-portrait" style="--char-glow:rgba(236,72,153,0.3);">
+            <svg width="72" height="72"><use href="#icon-sarah"/></svg>
+            <span class="char-name-tag char-name-tag--sarah">Sarah</span>
+          </div>
+          <div class="char-scene-text">
+            <span class="narrative-card__label">Sarah — unspoken</span>
+            <p>It's 2:47pm on a Tuesday.</p>
+
+            <p>Sarah has a 1:1 with Daniel in thirteen minutes.</p>
+
+            <p>Daniel is one of the people she managed for eight months before
+            her promotion. They used to get coffee on Thursdays.
+            He was at her promotion dinner.</p>
+
+            <p>In the last three weeks, Daniel has missed two check-ins,
+            submitted a client proposal with three factual errors,
+            and replied to Sarah's Slack message with a thumbs-up emoji
+            and nothing else.</p>
+
+            <p>Sarah opens her notes app.<br>
+            She starts typing what she wants to say.</p>
+
+            <p class="scene-emphasis">She closes it.</p>
+
+            <p class="scene-quiet">She'll bring it up if it feels right in the meeting.</p>
+          </div>
+        </div>
+
+        <hr class="scene-break fade-up" id="s1-break1">
+
+        <!-- Scene 2: The meeting (observed) -->
+        <div class="scene fade-up narrative-card narrative-card--observed" id="s1-scene2">
+          <span class="narrative-card__label">Observed</span>
+          <p>The meeting starts. Daniel looks tired.<br>
+          Sarah asks how the Henderson proposal is coming along.<br>
+          Daniel says fine.<br>
+          Sarah asks about his workload.<br>
+          Daniel says manageable.<br>
+          Sarah says great, keep her posted.</p>
+
+          <p>The meeting ends at 3:14.<br>
+          Sarah marks it complete in her calendar.</p>
+        </div>
+
+        <div class="typo-moment fade-up" id="s1-typo">
+          <div class="typo-moment-text typo-moment-text--rose">She did not bring it up.</div>
+        </div>
+
+        <!-- Narration + CTA -->
+        <div class="narration fade-up" id="s1-narration1">
+          <p>If you recognized something in that &mdash; you're in the right place.</p>
+        </div>
+
+        <div class="stage-action fade-up" id="s1-cta1">
+          <button class="btn btn--primary" id="btn-keep-going">
+            That's familiar. Keep going &rarr;
+            <span class="btn-pulse-ring"></span>
+          </button>
+        </div>
+      </div>
+
+      <!-- ============================================
+           SCREEN 1.2 — Marcus and Amara
+           ============================================ -->
+      <div class="screen" id="screen-1-2">
+
+        <button class="btn-back" id="btn-back">
+          <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+          Back to Sarah's story
+        </button>
+
+        <div class="stage-progress">
+          <div class="stage-dot done"></div>
+          <div class="stage-dot active"></div>
+        </div>
+
+        <!-- Bridge narration -->
+        <div class="narration-bridge fade-up" id="s2-bridge">
+          <p style="color:var(--text-secondary);font-size:var(--text-base);">Sarah isn't the only one.</p>
+        </div>
+
+        <hr class="scene-break fade-up" id="s2-break0">
+
+        <!-- Marcus scene — with portrait -->
+        <div class="char-scene-block char-card char-card--marcus fade-up" id="s2-marcus">
+          <div class="char-portrait" style="--char-glow:rgba(99,102,241,0.3);">
+            <svg width="72" height="72"><use href="#icon-marcus"/></svg>
+            <span class="char-name-tag char-name-tag--marcus">Marcus</span>
+          </div>
+          <div class="char-scene-text">
+            <p><span class="name-highlight name--marcus">Marcus</span> was promoted to tech lead six months ago
+            after five years as the strongest engineer on the team.</p>
+
+            <p>He noticed that one of his developers, Jin, had been
+            submitting code with increasing errors over the past month.
+            Not critical errors. Just more than before.</p>
+
+            <p>Marcus figured Jin would sort it out.<br>
+            That's what Marcus would have done.</p>
+
+            <p>He mentioned it once, loosely, in a group standup:</p>
+            <p class="scene-quote">"Let's all make sure we're reviewing before we push."</p>
+
+            <p>Jin nodded along with everyone else.</p>
+          </div>
+        </div>
+
+        <div class="typo-moment fade-up" id="s2-typo-marcus">
+          <div class="typo-moment-text typo-moment-text--indigo">The errors continued.</div>
+        </div>
+
+        <hr class="scene-break fade-up" id="s2-break1">
+
+        <!-- Amara scene — with portrait -->
+        <div class="char-scene-block char-card char-card--amara fade-up" id="s2-amara">
+          <div class="char-portrait" style="--char-glow:rgba(6,182,212,0.3);">
+            <svg width="72" height="72"><use href="#icon-amara"/></svg>
+            <span class="char-name-tag char-name-tag--amara">Amara</span>
+          </div>
+          <div class="char-scene-text">
+            <p><span class="name-highlight name--amara">Amara</span> manages a six-person operations team.
+            Her own manager, David, is known for keeping things smooth.</p>
+
+            <p>In two years, Amara has never seen David address a performance
+            issue directly. She has seen three people quietly moved to
+            different teams. She has seen one person managed out over
+            the course of nine months without a single direct conversation.</p>
+
+            <p>When one of Amara's team members started missing deadlines,
+            Amara's first instinct was to redistribute the work quietly.
+            The same way David would.</p>
+
+            <p class="scene-quiet">It felt like the professional thing to do.</p>
+          </div>
+        </div>
+
+        <hr class="scene-break fade-up" id="s2-break2">
+
+        <!-- Three portraits together -->
+        <div class="trio-row fade-up" id="s2-trio">
+          <div class="trio-item">
+            <svg width="56" height="56"><use href="#icon-sarah"/></svg>
+            <span class="char-name-tag char-name-tag--sarah">Sarah</span>
+          </div>
+          <div class="trio-item">
+            <svg width="56" height="56"><use href="#icon-marcus"/></svg>
+            <span class="char-name-tag char-name-tag--marcus">Marcus</span>
+          </div>
+          <div class="trio-item">
+            <svg width="56" height="56"><use href="#icon-amara"/></svg>
+            <span class="char-name-tag char-name-tag--amara">Amara</span>
+          </div>
+        </div>
+
+        <!-- Closing narration -->
+        <div class="narration fade-up" id="s2-narration1">
+          <p>Three different managers.<br>
+          Three different reasons for the same choice.</p>
+          <p>None of them are bad at their jobs.<br>
+          All of them are sitting on a conversation
+          that isn't getting easier with time.</p>
+        </div>
+
+        <div class="narration narration--secondary fade-up" id="s2-narration2">
+          <p>Before we give you a framework or a script &mdash;
+          we want to make sure you understand why this is actually hard.</p>
+          <p>Not the surface reason.<br>
+          The real one.</p>
+        </div>
+
+        <div class="stage-action fade-up" id="s2-cta">
+          <button class="btn btn--primary" id="btn-show-me">
+            Show me &rarr;
+            <span class="btn-pulse-ring"></span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <script src="text-size.js"></script>
+  <script src="tracker.js"></script>
+  <script src="onaa-ref.js"></script>
+  <script>
+    NBTracker.stageReached(1);
+
+    function revealSequence(ids, baseDelay, interval) {
+      ids.forEach((id, i) => {
+        setTimeout(() => {
+          document.getElementById(id).classList.add('visible');
+        }, baseDelay + i * interval);
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      revealSequence(['s1-scene1'], 200, 0);
+      revealSequence(['s1-break1', 's1-scene2'], 1200, 600);
+      revealSequence(['s1-typo'], 3000, 0);
+      revealSequence(['s1-narration1'], 5000, 0);
+      revealSequence(['s1-cta1'], 6200, 0);
+    });
+
+    document.getElementById('btn-keep-going').addEventListener('click', () => {
+      document.getElementById('screen-1-1').classList.remove('active');
+      document.getElementById('screen-1-2').classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      setTimeout(() => {
+        revealSequence(['s2-bridge', 's2-break0', 's2-marcus'], 200, 700);
+        revealSequence(['s2-typo-marcus'], 2400, 0);
+        revealSequence(['s2-break1', 's2-amara'], 3400, 700);
+        revealSequence(['s2-break2', 's2-trio', 's2-narration1', 's2-narration2', 's2-cta'], 5500, 550);
+      }, 100);
+    });
+
+    document.getElementById('btn-back').addEventListener('click', () => {
+      document.getElementById('screen-1-2').classList.remove('active');
+      document.getElementById('screen-1-1').classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    document.getElementById('btn-show-me').addEventListener('click', () => {
+      window.location.href = 'stage2.html';
+    });
+  </script>
+
+</body>
+</html>

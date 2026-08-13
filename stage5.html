@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stage 5 — Transfer · NovaBridge</title>
+  <link rel="stylesheet" href="tokens.css">
+  <style>
+    .stage-page { position: relative; z-index: 1; padding: var(--space-8) var(--space-4); }
+    .stage-container { max-width: var(--max-width-course); margin: 0 auto; width: 100%; }
+
+    /* ── Back ── */
+    .btn-back {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: none; border: none; font-family: var(--font);
+      font-size: var(--text-sm); color: var(--text-tertiary);
+      cursor: pointer; padding: 4px 0; text-decoration: none;
+      transition: color var(--transition-fast);
+    }
+    .btn-back:hover { color: var(--text-secondary); }
+    .btn-back svg {
+      width: 16px; height: 16px; stroke: currentColor;
+      fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+    }
+
+    /* ── Closing quote ── */
+    .closing-quote {
+      font-size: clamp(20px, 5vw, var(--text-2xl));
+      font-weight: var(--weight-medium);
+      color: var(--text-primary);
+      text-align: center;
+      line-height: var(--leading-tight);
+      padding: var(--space-8) 0 var(--space-4);
+    }
+
+    /* ── Divider ── */
+    .scene-break {
+      width: 40px; height: 1px;
+      background: var(--border-default); border: none;
+      margin: var(--space-8) auto;
+    }
+
+    /* ── Commitment ── */
+    .commit-heading {
+      font-size: var(--text-base); font-weight: var(--weight-regular);
+      color: var(--text-secondary); line-height: var(--leading-loose);
+      margin-bottom: var(--space-6); text-align: center;
+    }
+    .commit-form {
+      display: flex; flex-direction: column; gap: var(--space-5);
+      margin: 0 auto var(--space-6); max-width: 480px;
+    }
+    .commit-field label {
+      display: block; font-size: var(--text-sm); color: var(--text-primary);
+      font-weight: var(--weight-medium); margin-bottom: var(--space-2);
+    }
+    .commit-field input {
+      width: 100%; padding: 10px 13px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-md);
+      font-family: var(--font); font-size: var(--text-sm);
+      color: var(--text-primary);
+      transition: border-color var(--transition-fast);
+      box-sizing: border-box;
+    }
+    .commit-field input::placeholder { color: var(--text-tertiary); }
+    .commit-field input:focus { outline: none; border-color: var(--indigo-400); }
+
+    /* ── Button area ── */
+    .stage-action { text-align: center; padding-top: var(--space-6); }
+    .btn-row {
+      display: flex; justify-content: center;
+      gap: var(--space-3); flex-wrap: wrap;
+    }
+
+    /* ── Finish state ── */
+    .finish-message {
+      text-align: center; padding: var(--space-4) 0;
+    }
+    .finish-message p {
+      font-size: var(--text-sm); color: var(--text-tertiary);
+    }
+
+    /* ── Fade ── */
+    .fade-up {
+      opacity: 0; transform: translateY(12px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .fade-up.visible { opacity: 1; transform: translateY(0); }
+
+    @media (max-width: 480px) {
+      .stage-page { padding: var(--space-5) var(--space-4); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bg-orbs" data-stage="5">
+    <div class="orb orb-1"></div><div class="orb orb-2"></div><div class="orb orb-3"></div>
+  </div>
+
+  <nav class="nav">
+    <a href="index.html" class="nav-brand nav-link" style="font-size:var(--text-sm);font-weight:var(--weight-semi);color:var(--text-primary);text-decoration:none;">&larr; Course overview</a>
+    <div class="progress-nav">
+      <div class="prog-dot prog-dot--done">1</div><div class="prog-line"></div>
+      <div class="prog-dot prog-dot--done">2</div><div class="prog-line"></div>
+      <div class="prog-dot prog-dot--done">3</div><div class="prog-line"></div>
+      <div class="prog-dot prog-dot--done">4</div><div class="prog-line"></div>
+      <div class="prog-dot prog-dot--active">5</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:var(--space-4);">
+      <div class="text-toggle">
+        <button class="text-toggle-btn text-toggle-btn--sm" data-size="text-sm">A</button>
+        <button class="text-toggle-btn text-toggle-btn--md" data-size="text-md">A</button>
+        <button class="text-toggle-btn text-toggle-btn--lg" data-size="text-lg">A</button>
+      </div>
+      <a href="job-aid.html" class="nav-link">Job aid</a>
+    </div>
+  </nav>
+
+  <main class="stage-page">
+    <div class="stage-container">
+
+      <div style="margin-bottom: var(--space-6);">
+        <a href="stage4.html" class="btn-back">
+          <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+          Back to the simulation
+        </a>
+      </div>
+
+      <div class="closing-quote fade-up" id="s5-quote">
+        The right time to have this conversation was weeks ago.<br>The next best time is this week.
+      </div>
+
+      <hr class="scene-break fade-up" id="s5-break">
+
+      <p class="commit-heading fade-up" id="s5-heading">
+        Before you leave, make one specific commitment &mdash; not a general intention, but a name and a date.
+      </p>
+
+      <div class="commit-form fade-up" id="s5-form">
+        <div class="commit-field">
+          <label>Who on your team needs this conversation?</label>
+          <input type="text" id="commit-person" placeholder="First name is fine">
+        </div>
+        <div class="commit-field">
+          <label>I'll have it before:</label>
+          <input type="date" id="commit-date">
+        </div>
+      </div>
+
+      <div class="stage-action fade-up" id="s5-cta">
+        <div class="btn-row">
+          <a href="job-aid.html" class="btn btn--primary" id="btn-job-aid">Open job aid &rarr;</a>
+          <button class="btn btn--ghost" id="btn-finish">Finish the program</button>
+        </div>
+      </div>
+
+      <div class="finish-message" id="finish-msg" style="display:none;">
+        <p>You've completed the program. The job aid is always available from the nav.</p>
+      </div>
+
+    </div>
+  </main>
+
+  <script src="text-size.js"></script>
+  <script src="tracker.js"></script>
+  <script src="onaa-ref.js"></script>
+  <script>
+    NBTracker.stageReached(5);
+
+    // Reveal on load
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.fade-up').forEach((el, i) => {
+        setTimeout(() => el.classList.add('visible'), 200 + i * 180);
+      });
+    });
+
+    // Fire commitmentMade if name is filled on either finish action
+    function maybeTrackCommitment() {
+      if (document.getElementById('commit-person').value.trim()) {
+        NBTracker.commitmentMade();
+      }
+    }
+
+    document.getElementById('btn-job-aid').addEventListener('click', () => {
+      maybeTrackCommitment();
+      NBTracker.courseCompleted();
+    });
+
+    document.getElementById('btn-finish').addEventListener('click', () => {
+      maybeTrackCommitment();
+      NBTracker.courseCompleted();
+      document.getElementById('s5-cta').style.display = 'none';
+      document.getElementById('finish-msg').style.display = 'block';
+    });
+  </script>
+
+</body>
+</html>
