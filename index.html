@@ -3,268 +3,517 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>The conversation you've been avoiding — NovaBridge</title>
+  <title>Why we avoid — NovaBridge</title>
   <link rel="stylesheet" href="tokens.css">
   <style>
-    /* ── Page ── */
-    .intro-page {
-      position: relative; z-index: 1;
+
+    /* ─────────────────────────────────────────
+       APP SHELL — sidebar + content
+       Matches stage1 layout exactly.
+    ───────────────────────────────────────── */
+
+    .app-shell {
+      display: flex;
       min-height: calc(100vh - var(--nav-height));
-      display: flex; align-items: center; justify-content: center;
-      padding: var(--space-8) var(--space-4);
+      position: relative;
+      z-index: 1;
     }
 
-    .intro-container {
-      max-width: var(--max-width-wide); width: 100%;
+    /* ─────────────────────────────────────────
+       SIDEBAR — white background
+    ───────────────────────────────────────── */
+
+    .sidebar {
+      width: 288px;
+      flex-shrink: 0;
+      background: #ffffff;
+      border-right: 1px solid #e5e3f0;
+      position: sticky;
+      top: var(--nav-height);
+      height: calc(100vh - var(--nav-height));
+      overflow-y: auto;
+      padding: var(--space-6) 0 var(--space-10);
     }
 
-    /* ── Calendar card ── */
-    .cal {
-      background: rgba(255,255,255,0.03);
-      border: 1px solid var(--border-default);
-      border-radius: var(--radius-xl);
-      overflow: hidden;
-    }
-
-    /* ── Cal header (colored bar) ── */
-    .cal-bar {
-      height: 5px;
-      background: var(--grad-primary);
-    }
-
-    .cal-header {
-      padding: var(--space-5) var(--space-6) var(--space-4);
-      border-bottom: 1px solid var(--border-subtle);
-    }
-
-    .cal-org {
-      font-size: 10px; font-weight: var(--weight-semi);
-      letter-spacing: 0.08em; text-transform: uppercase;
-      color: var(--text-tertiary); margin-bottom: var(--space-3);
-    }
-
-    .cal-title {
-      font-size: clamp(22px, 5vw, var(--text-2xl));
+    .sidebar-section {
+      padding: 0 var(--space-5) var(--space-4);
+      font-size: var(--text-2xs);
       font-weight: var(--weight-semi);
-      line-height: var(--leading-tight);
-      color: var(--text-primary);
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      color: #6b67a0;
+    }
+
+    .sidebar-divider {
+      height: 1px;
+      background: #eeecf8;
+      margin: var(--space-3) var(--space-5);
+    }
+
+    /* Module heading — caps label */
+    .sidebar-module-heading {
+      padding: var(--space-3) var(--space-5) var(--space-2);
+      font-size: var(--text-2xs);
+      font-weight: var(--weight-semi);
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      color: #6b67a0;
+      cursor: pointer;
+    }
+
+    .sidebar-module-heading:hover {
+      color: #6b67a0;
+    }
+
+    .sidebar-module-heading--active {
+      color: var(--indigo-600);
+    }
+
+    /* Collapsible module toggle */
+    .sidebar-module-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-3) var(--space-5) var(--space-2);
+      font-size: var(--text-2xs);
+      font-weight: var(--weight-semi);
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      color: #6b67a0;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .sidebar-module-toggle:hover { color: #6b67a0; }
+    .sidebar-module-toggle--active { color: var(--indigo-600); }
+
+    .sidebar-chevron {
+      transition: transform 0.25s ease;
+      flex-shrink: 0;
+    }
+
+    .sidebar-module-toggle--open .sidebar-chevron { transform: rotate(180deg); }
+
+    .sidebar-collapsible {
+      max-height: 0;
+      overflow: hidden;
+      padding: 0 var(--space-3) 0 var(--space-5);
+      transition: max-height 0.3s ease, padding 0.3s ease;
+    }
+
+    .sidebar-collapsible--open {
+      max-height: 500px;
+      padding: 0 var(--space-3) var(--space-4) var(--space-5);
+    }
+
+
+    /* Screen items inside a module */
+    .sidebar-screens {
+      /* padding controlled by .sidebar-collapsible */
+    }
+
+    .sidebar-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: 6px var(--space-3);
+      border-radius: var(--radius-sm);
+      font-size: var(--text-xs);
+      color: #6b67a0;
+      margin-bottom: 2px;
+      cursor: pointer;
+      transition: background var(--transition-fast), color var(--transition-fast);
+      user-select: none;
+    }
+
+    .sidebar-item--active {
+      color: var(--indigo-600);
+      background: rgba(99,102,241,0.08);
+      font-weight: var(--weight-medium);
+    }
+
+    .sidebar-step-num {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--text-2xs);
+      font-weight: var(--weight-semi);
+      flex-shrink: 0;
+      background: #f0eef8;
+      color: #6b67a0;
+      border: 1px solid #e2e0f0;
+    }
+
+    /* ─────────────────────────────────────────
+       CONTENT AREA — fills right of sidebar
+    ───────────────────────────────────────── */
+
+    .content-area {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      justify-content: center;
+      padding: var(--space-12) var(--space-6) var(--space-12);
+    }
+
+    .hero-container {
+      max-width: 1075px;
+      width: 100%;
+    }
+
+    /* ─────────────────────────────────────────
+       ORG BREADCRUMB
+    ───────────────────────────────────────── */
+
+    .hero-org {
+      font-size: var(--text-xxs);
+      font-weight: var(--weight-semi);
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      color: var(--violet-400);
       margin-bottom: var(--space-2);
     }
 
-    .cal-subtitle {
+    /* ─────────────────────────────────────────
+       HERO TITLE
+       "Why we avoid." — ONE unified size.
+       "avoid." is italic + ombre gradient.
+       No size split between "Why we" and "avoid."
+    ───────────────────────────────────────── */
+
+    .hero-title {
+      font-size: clamp(44px, 8vw, 72px);
+      font-weight: 700;
+      line-height: var(--leading-tight);
+      color: var(--text-primary);
+      margin-bottom: var(--space-5);
+    }
+
+    .hero-em {
+      font-style: italic;
+      /* Ombre: indigo → violet → pink */
+      background: linear-gradient(
+        135deg,
+        var(--indigo-300)  0%,
+        var(--violet-400) 50%,
+        var(--pink-300)  100%
+      );
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* ─────────────────────────────────────────
+       SUBTITLE — one sentence
+    ───────────────────────────────────────── */
+
+    .hero-subtitle {
+      font-size: var(--text-md);
+      color: var(--text-primary);
+      line-height: var(--leading-base);
+      max-width: 100%;
+      margin-bottom: var(--space-8);
+    }
+
+    /* ─────────────────────────────────────────
+       STAT GRID — label over value
+    ───────────────────────────────────────── */
+
+    .stat-grid {
+      display: flex;
+      gap: 56px;
+      flex-wrap: wrap;
+      margin-bottom: var(--space-10);
+    }
+
+    .stat-cell-label {
+      font-size: var(--text-2xs);
+      font-weight: var(--weight-semi);
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      margin-bottom: var(--space-1);
+    }
+
+    .stat-cell-value {
+      font-size: var(--text-base);
+      font-weight: var(--weight-semi);
+      color: var(--text-primary);
+    }
+
+    /* ─────────────────────────────────────────
+       PREVIEW CARDS — teaser before commit
+    ───────────────────────────────────────── */
+
+    .preview-label {
+      font-size: var(--text-xxs);
+      font-weight: var(--weight-semi);
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      margin-bottom: var(--space-4);
+      margin-top: var(--space-8);
+    }
+
+    .preview-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-4);
+      margin-bottom: var(--space-6);
+    }
+
+    .preview-card {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-lg);
+      padding: var(--space-5);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+    }
+
+    .preview-card-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .preview-card-icon--indigo { background: rgba(99,102,241,0.15); }
+    .preview-card-icon--rose   { background: rgba(244,63,94,0.12); }
+    .preview-card-icon--cyan   { background: rgba(6,182,212,0.12); }
+
+    .preview-card-title {
       font-size: var(--text-sm);
+      font-weight: var(--weight-semi);
+      color: var(--text-primary);
+      line-height: 1.35;
+    }
+
+    .preview-card-desc {
+      font-size: var(--text-xs);
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    /* ─────────────────────────────────────────
+       OUTCOMES — what you'll be able to do
+    ───────────────────────────────────────── */
+
+    .outcome-list {
+      list-style: none;
+      margin: 0 0 var(--space-6);
+      padding: 0;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-4) var(--space-8);
+    }
+
+    .outcome-item {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-3);
+      font-size: var(--text-sm);
+      line-height: var(--leading-base);
       color: var(--text-secondary);
     }
 
-    /* ── Cal meta rows ── */
-    .cal-meta {
-      padding: var(--space-4) var(--space-6);
-      border-bottom: 1px solid var(--border-subtle);
-      display: flex; flex-direction: column; gap: var(--space-3);
+    .outcome-check {
+      flex-shrink: 0;
+      width: 22px;
+      height: 22px;
+      margin-top: 3px;
+      border-radius: 50%;
+      background: rgba(124,58,237,0.18);
+      color: var(--violet-400);
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
-    .cal-row {
-      display: flex; align-items: flex-start; gap: var(--space-3);
+    @media (max-width: 600px) {
+      .preview-grid  { grid-template-columns: 1fr; }
+      .stat-grid     { gap: var(--space-6); }
+      .outcome-list  { grid-template-columns: 1fr; }
     }
 
-    .cal-icon {
-      width: 18px; height: 18px; flex-shrink: 0;
-      margin-top: 1px;
-      stroke: var(--text-tertiary); fill: none;
-      stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
+    /* ─────────────────────────────────────────
+       DIVIDER
+    ───────────────────────────────────────── */
+
+    .hero-divider {
+      height: 1px;
+      background: rgba(255, 255, 255, 0.22);
+      margin-bottom: var(--space-6);
     }
 
-    .cal-row-text {
-      font-size: var(--text-sm); color: var(--text-secondary);
-      line-height: var(--leading-base);
+    /* ─────────────────────────────────────────
+       BEFORE YOU BEGIN
+    ───────────────────────────────────────── */
+
+    .begin-label {
+      font-size: var(--text-xxs);
+      font-weight: var(--weight-semi);
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      color: var(--violet-400);
+      margin-bottom: var(--space-3);
     }
 
-    .cal-row-label {
-      font-size: var(--text-xs); color: var(--text-tertiary);
-      margin-bottom: 1px;
+    .begin-desc {
+      font-size: var(--text-sm);
+      color: var(--text-secondary);
+      margin-bottom: var(--space-4);
     }
 
-    .cal-row-value {
-      font-size: var(--text-sm); color: var(--text-primary);
-      font-weight: var(--weight-medium);
-    }
-
-    /* ── Agenda section ── */
-    .cal-agenda {
+    /* White frame — name input card */
+    .begin-frame {
+      background: #ffffff;
+      border-radius: var(--radius-xl);
       padding: var(--space-5) var(--space-6);
-      border-bottom: 1px solid var(--border-subtle);
+      margin-bottom: var(--space-5);
+      width: 100%;
     }
 
-    .cal-agenda-label {
-      font-size: 10px; font-weight: var(--weight-semi);
-      letter-spacing: 0.06em; text-transform: uppercase;
-      color: var(--text-tertiary); margin-bottom: var(--space-4);
+    .begin-frame label {
+      display: block;
+      font-size: var(--text-sm);
+      font-weight: var(--weight-semi);
+      color: #1a1745;
+      margin-bottom: var(--space-3);
     }
 
-    .agenda-list {
-      display: flex; flex-direction: column; gap: 0;
-    }
-
-    .agenda-item {
-      display: flex; gap: var(--space-3);
-      padding: var(--space-3) 0;
-      border-bottom: 1px solid var(--border-subtle);
-    }
-    .agenda-item:last-child { border-bottom: none; }
-
-    .agenda-icon {
-      width: 16px; height: 16px; flex-shrink: 0; margin-top: 3px;
-      stroke: var(--indigo-400); fill: none;
-      stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round;
-    }
-
-    .agenda-text {
-      font-size: var(--text-sm); color: var(--text-secondary);
-      line-height: var(--leading-base); flex: 1;
-    }
-
-    .agenda-text .quiet {
-      color: var(--text-tertiary); font-size: var(--text-xs);
-      display: block; margin-top: 1px;
-    }
-
-    /* ── Course map (inside agenda) ── */
-    .cal-map {
-      padding: var(--space-5) var(--space-6);
-      border-bottom: 1px solid var(--border-subtle);
-    }
-
-    .cal-map-label {
-      font-size: 10px; font-weight: var(--weight-semi);
-      letter-spacing: 0.06em; text-transform: uppercase;
-      color: var(--text-tertiary); margin-bottom: var(--space-4);
-    }
-
-    .map-list { display: flex; flex-direction: column; gap: var(--space-2); }
-
-    .map-link { text-decoration: none; color: inherit; display: block; }
-
-    .map-item {
-      display: flex; gap: var(--space-3); align-items: center;
-      padding: var(--space-3) var(--space-3);
+    .begin-input {
+      width: 100%;
+      max-width: 100%;
+      padding: 11px 15px;
+      border: 1.5px solid rgba(255,255,255,0.18);
       border-radius: var(--radius-md);
-      transition: background var(--transition-fast);
+      font-family: var(--font);
+      font-size: var(--text-sm);
+      color: var(--text-primary);
+      background: rgba(255,255,255,0.06);
+      outline: none;
+      transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
     }
 
-    .map-item--ready { cursor: pointer; }
-    .map-item--ready:hover { background: rgba(255,255,255,0.04); }
+    .begin-input::placeholder { color: rgba(255,255,255,0.30); }
 
-    .map-item--core {
-      background: rgba(99,102,241,0.06);
-      border-radius: var(--radius-md);
-    }
-    .map-item--core:hover { background: rgba(99,102,241,0.10); }
-
-    .map-dot {
-      width: 24px; height: 24px; border-radius: var(--radius-pill);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 10px; font-weight: var(--weight-semi); flex-shrink: 0;
-      background: rgba(99,102,241,0.10);
-      border: 1px solid var(--border-indigo);
-      color: var(--indigo-300);
+    .begin-input:focus {
+      border-color: var(--violet-500);
+      background: rgba(255,255,255,0.10);
+      box-shadow: 0 0 0 3px rgba(139,92,246,0.15);
     }
 
-    .map-item--core .map-dot {
-      background: var(--grad-primary); border: none;
-      color: #fff; box-shadow: var(--glow-sm);
+    .begin-save-note {
+      display: block;
+      font-size: var(--text-xxs);
+      color: #9996b8;
+      margin-top: var(--space-2);
     }
 
-    .map-item--aid .map-dot {
-      background: rgba(255,255,255,0.04);
-      border-color: var(--border-default);
-      color: var(--text-tertiary); font-size: 12px;
+    /* ─────────────────────────────────────────
+       BEGIN SECTION OUTER FRAME
+    ───────────────────────────────────────── */
+
+    .begin-section-frame {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      border-radius: var(--radius-xl);
+      padding: var(--space-6);
+      max-width: 480px;
     }
 
-    .map-text { flex: 1; min-width: 0; }
+    /* ─────────────────────────────────────────
+       BEGIN ACTION
+    ───────────────────────────────────────── */
 
-    .map-name {
-      font-size: var(--text-sm); color: var(--text-primary);
-      font-weight: var(--weight-medium);
+    .begin-action {
+      display: flex;
+      align-items: center;
+      gap: var(--space-5);
     }
 
-    .map-time {
-      font-size: var(--text-xs); color: var(--text-tertiary);
+    .begin-progress-note {
+      font-size: var(--text-xs);
+      color: var(--text-secondary);
     }
 
-    .map-arrow {
-      font-size: var(--text-base); color: var(--text-hint);
-      transition: color var(--transition-fast), transform var(--transition-fast);
-    }
-    .map-item--ready:hover .map-arrow {
-      color: var(--indigo-300); transform: translateX(2px);
-    }
+    /* ─────────────────────────────────────────
+       HERO FRAME — gradient card
+    ───────────────────────────────────────── */
 
-    .map-badges {
-      display: flex; gap: var(--space-1); margin-top: 2px;
-    }
-
-    .map-badge {
-      font-size: 9px; font-weight: var(--weight-semi);
-      letter-spacing: 0.02em; padding: 1px 6px;
-      border-radius: var(--radius-pill);
-    }
-    .map-badge--sim { background: rgba(236,72,153,0.10); color: var(--pink-300); border: 1px solid var(--border-pink); }
-    .map-badge--ai { background: rgba(6,182,212,0.10); color: var(--cyan-300); border: 1px solid var(--border-cyan); }
-
-    /* ── Privacy note ── */
-    .cal-note {
-      padding: var(--space-4) var(--space-6);
-      border-bottom: 1px solid var(--border-subtle);
-      display: flex; gap: var(--space-3); align-items: flex-start;
+    .hero-frame {
+      background: linear-gradient(
+        145deg,
+        #1d1a62 0%,
+        #150e3e 38%,
+        #1b0d4c 65%,
+        #1f1562 100%
+      );
+      border: 1px solid rgba(139, 92, 246, 0.24);
+      border-radius: 28px;
+      padding: var(--space-12) var(--space-10) var(--space-10);
+      margin-bottom: var(--space-8);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.07),
+        0 8px 64px rgba(99, 102, 241, 0.16),
+        0 4px 28px rgba(236, 72, 153, 0.08);
     }
 
-    .cal-note-icon {
-      width: 16px; height: 16px; flex-shrink: 0; margin-top: 2px;
-      stroke: var(--text-tertiary); fill: none;
-      stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
+    @media (max-width: 480px) {
+      .hero-frame {
+        padding: var(--space-6) var(--space-5);
+        border-radius: var(--radius-xl);
+      }
     }
 
-    .cal-note-text {
-      font-size: var(--text-xs); color: var(--text-tertiary);
-      line-height: var(--leading-base);
-    }
+    /* ─────────────────────────────────────────
+       FADE-UP
+    ───────────────────────────────────────── */
 
-    /* ── Accept button area ── */
-    .cal-footer {
-      padding: var(--space-5) var(--space-6);
-      display: flex; flex-direction: column; align-items: center; gap: var(--space-3);
-    }
-
-    .cal-footer .btn { width: 100%; }
-
-    .cal-save-note {
-      font-size: var(--text-xs); color: var(--text-hint);
-    }
-
-    /* ── Fade ── */
     .fade-up {
-      opacity: 0; transform: translateY(12px);
+      opacity: 0;
+      transform: translateY(12px);
       transition: opacity 0.5s ease, transform 0.5s ease;
     }
     .fade-up.visible { opacity: 1; transform: translateY(0); }
 
-    @media (max-width: 480px) {
-      .intro-page { padding: var(--space-5) var(--space-4); align-items: flex-start; }
-      .cal-header, .cal-meta, .cal-agenda, .cal-map, .cal-note, .cal-footer {
-        padding-left: var(--space-4); padding-right: var(--space-4);
-      }
+    /* ─────────────────────────────────────────
+       RESPONSIVE
+    ───────────────────────────────────────── */
+
+    @media (max-width: 768px) {
+      .sidebar      { display: none; }
+      .content-area { padding: var(--space-8) var(--space-4); }
     }
+
+    @media (max-width: 480px) {
+      .begin-frame  { padding: var(--space-5); }
+      .begin-action { flex-direction: column; align-items: flex-start; gap: var(--space-3); }
+    }
+
   </style>
 </head>
 <body>
 
   <div class="bg-orbs">
-    <div class="orb orb-1"></div><div class="orb orb-2"></div><div class="orb orb-3"></div>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
   </div>
 
+  <!-- ── Navigation ── -->
   <nav class="nav">
     <span class="nav-brand">NovaBridge &middot; People Development</span>
     <div style="display:flex;align-items:center;gap:var(--space-4);">
+      <span class="nav-counter">1 / 12</span>
       <div class="text-toggle">
         <button class="text-toggle-btn text-toggle-btn--sm" data-size="text-sm">A</button>
         <button class="text-toggle-btn text-toggle-btn--md" data-size="text-md">A</button>
@@ -274,188 +523,300 @@
     </div>
   </nav>
 
-  <main class="intro-page">
-    <div class="intro-container">
+  <div class="app-shell">
 
-      <div class="cal fade-up">
+    <!-- ═══════════════════════════════════════
+         SIDEBAR
+    ═══════════════════════════════════════ -->
+    <aside class="sidebar">
+      <div class="sidebar-section">Course 1 &middot; Avoidance</div>
 
-        <!-- Color bar -->
-        <div class="cal-bar"></div>
+      <!-- START — Welcome (active on this page) -->
+      <div class="sidebar-module-toggle sidebar-module-toggle--active sidebar-module-toggle--open" onclick="toggleSidebarSection(this)">
+        <span>Start</span>
+        <svg class="sidebar-chevron" aria-hidden="true" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+      </div>
+      <div class="sidebar-screens sidebar-collapsible sidebar-collapsible--open">
+        <div class="sidebar-item sidebar-item--active">
+          <div class="sidebar-step-num" style="background:var(--grad-primary);color:#fff;border-color:transparent;box-shadow:0 0 6px rgba(99,102,241,0.4);">1</div>
+          Welcome
+        </div>
+      </div>
 
-        <!-- Header -->
-        <div class="cal-header">
-          <div class="cal-org">NovaBridge &middot; People Development</div>
-          <h1 class="cal-title">The conversation you've been avoiding</h1>
-          <p class="cal-subtitle">A program for new managers at NovaBridge</p>
+      <div class="sidebar-divider"></div>
+
+      <!-- Module 1 — ANATOMY -->
+      <div class="sidebar-module-toggle sidebar-module-toggle--open" id="sheading-1" onclick="toggleSidebarSection(this)">
+        <span>The Anatomy of Avoiding</span>
+        <svg class="sidebar-chevron" aria-hidden="true" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+      </div>
+      <div class="sidebar-screens sidebar-collapsible sidebar-collapsible--open">
+        <div class="sidebar-item" onclick="window.location.href='stage1.html'">
+          <div class="sidebar-step-num">1</div>
+          The familiar choice
+        </div>
+        <div class="sidebar-item" onclick="window.location.href='stage1.html'">
+          <div class="sidebar-step-num">2</div>
+          Why friction feels like danger
+        </div>
+        <div class="sidebar-item" onclick="window.location.href='stage1.html'">
+          <div class="sidebar-step-num">3</div>
+          The Promotion Paradox
+        </div>
+      </div>
+
+      <div class="sidebar-divider"></div>
+
+      <!-- Module 2 — PATTERNS -->
+      <div class="sidebar-module-toggle sidebar-module-toggle--open" id="sheading-2" onclick="toggleSidebarSection(this)">
+        <span>The 3 Patterns of Avoidance</span>
+        <svg class="sidebar-chevron" aria-hidden="true" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+      </div>
+      <div class="sidebar-screens sidebar-collapsible sidebar-collapsible--open">
+        <div class="sidebar-item" onclick="window.location.href='stage2.html'">
+          <div class="sidebar-step-num">1</div>
+          Meet the three managers
+        </div>
+        <div class="sidebar-item" onclick="window.location.href='stage2.html'">
+          <div class="sidebar-step-num">2</div>
+          Sarah
+        </div>
+        <div class="sidebar-item" onclick="window.location.href='stage2.html'">
+          <div class="sidebar-step-num">3</div>
+          Marcus
+        </div>
+        <div class="sidebar-item" onclick="window.location.href='stage2.html'">
+          <div class="sidebar-step-num">4</div>
+          Amara
+        </div>
+        <div class="sidebar-item" onclick="window.location.href='stage2.html'">
+          <div class="sidebar-step-num">5</div>
+          Your pattern
+        </div>
+      </div>
+
+      <div class="sidebar-divider"></div>
+
+      <!-- Module 3 — COST -->
+      <div class="sidebar-module-toggle sidebar-module-toggle--open" id="sheading-3" onclick="toggleSidebarSection(this)">
+        <span>The Cost of Inaction</span>
+        <svg class="sidebar-chevron" aria-hidden="true" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+      </div>
+      <div class="sidebar-screens sidebar-collapsible sidebar-collapsible--open">
+        <div class="sidebar-item" onclick="window.location.href='stage3.html'">
+          <div class="sidebar-step-num">1</div>
+          The hidden costs
+        </div>
+        <div class="sidebar-item" onclick="window.location.href='stage3.html#1'">
+          <div class="sidebar-step-num">2</div>
+          The $7,500 question
+        </div>
+        <div class="sidebar-item" onclick="window.location.href='stage3.html#2'">
+          <div class="sidebar-step-num">3</div>
+          The takeaway
+        </div>
+      </div>
+
+      <div class="sidebar-divider"></div>
+
+      <!-- Module 4 — KNOWLEDGE CHECK -->
+      <div class="sidebar-module-toggle sidebar-module-toggle--open" id="sheading-4" onclick="toggleSidebarSection(this)">
+        <span>Knowledge Check</span>
+        <svg class="sidebar-chevron" aria-hidden="true" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+      </div>
+      <div class="sidebar-screens sidebar-collapsible sidebar-collapsible--open">
+        <div class="sidebar-item" onclick="window.location.href='stage4.html'">
+          <div class="sidebar-step-num">1</div>
+          Check your understanding
+        </div>
+      </div>
+    </aside>
+
+    <!-- ═══════════════════════════════════════
+         MAIN CONTENT
+    ═══════════════════════════════════════ -->
+    <main class="content-area">
+      <div class="hero-container">
+
+        <div class="hero-frame">
+
+          <!-- Org breadcrumb -->
+          <div class="hero-org fade-up">
+            NovaBridge &middot; People Development &middot; New managers
+          </div>
+
+          <!-- Title — unified size, "avoid." italic ombre -->
+          <h1 class="hero-title fade-up">
+            Why we <em class="hero-em">avoid.</em>
+          </h1>
+
+          <!-- One subtitle sentence -->
+          <p class="hero-subtitle fade-up">
+            A practical course for new managers at NovaBridge on the patterns behind difficult conversations — and what every avoided one actually costs.
+          </p>
+
+          <!-- Divider — separates intro copy from spec stats -->
+          <div class="hero-divider fade-up"></div>
+
+          <!-- Stat grid -->
+          <div class="stat-grid fade-up">
+            <div class="stat-cell">
+              <div class="stat-cell-label">Duration</div>
+              <div class="stat-cell-value">~15 min</div>
+            </div>
+            <div class="stat-cell">
+              <div class="stat-cell-label">Modules</div>
+              <div class="stat-cell-value">4</div>
+            </div>
+            <div class="stat-cell">
+              <div class="stat-cell-label">Audience</div>
+              <div class="stat-cell-value">New managers</div>
+            </div>
+            <div class="stat-cell">
+              <div class="stat-cell-label">To pass</div>
+              <div class="stat-cell-value">75%</div>
+            </div>
+          </div>
+
+          <!-- Before you begin -->
+          <div class="fade-up begin-section-frame">
+            <div class="begin-label">Before you begin</div>
+            <p class="begin-desc">Please enter your full name to start the course.</p>
+
+            <input
+              type="text"
+              id="learner-name"
+              class="begin-input"
+              placeholder="e.g. Maria Chen"
+              autocomplete="name"
+              style="margin-bottom: var(--space-5);"
+            >
+
+            <div class="begin-action">
+              <button class="btn btn--primary" id="begin-btn">
+                Begin training &rarr;
+                <span class="btn-pulse-ring"></span>
+              </button>
+            </div>
+          </div>
+
+        </div><!-- /.hero-frame -->
+
+        <!-- Outcomes — the four learning objectives, in learner language -->
+        <div class="fade-up">
+          <div class="preview-label">What you'll be able to do</div>
+          <ul class="outcome-list">
+            <li class="outcome-item">
+              <span class="outcome-check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></span>
+              Spot when a delay is a threat response rather than a character flaw, and why that instinct starts costing you once you manage people.
+            </li>
+            <li class="outcome-item">
+              <span class="outcome-check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></span>
+              Tell which of three reasons is driving a manager's avoidance.
+            </li>
+            <li class="outcome-item">
+              <span class="outcome-check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></span>
+              Name the costs that build up unseen: on the team, on you, and on the business.
+            </li>
+            <li class="outcome-item">
+              <span class="outcome-check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></span>
+              Recognize which avoidance pattern is closest to your own.
+            </li>
+          </ul>
         </div>
 
-        <!-- Meta rows -->
-        <div class="cal-meta">
-          <div class="cal-row">
-            <svg class="cal-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            <div>
-              <div class="cal-row-label">Duration</div>
-              <div class="cal-row-value">45 minutes &middot; self-paced</div>
-            </div>
-          </div>
-          <div class="cal-row">
-            <svg class="cal-icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-            <div>
-              <div class="cal-row-label">When</div>
-              <div class="cal-row-value" id="cal-date">Today</div>
-            </div>
-          </div>
-          <div class="cal-row">
-            <svg class="cal-icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-            <div>
-              <div class="cal-row-label">For</div>
-              <div class="cal-row-value">New managers</div>
-            </div>
-          </div>
-          <div class="cal-row">
-            <svg class="cal-icon" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-            <div>
-              <div class="cal-row-label">Includes</div>
-              <div class="cal-row-value">Live simulation &middot; AI coaching</div>
-            </div>
-          </div>
-        </div>
+        <!-- Preview cards — what's inside -->
+        <div class="fade-up">
+          <div class="preview-label">What's inside</div>
+          <div class="preview-grid">
 
-        <!-- Agenda -->
-        <div class="cal-agenda fade-up">
-          <div class="cal-agenda-label">When you leave, you will have</div>
-          <div class="agenda-list">
-            <div class="agenda-item">
-              <svg class="agenda-icon" viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg>
-              <div class="agenda-text">Understood why this conversation is hard for you specifically <span class="quiet">Not a character problem &mdash; a design problem</span></div>
+            <div class="preview-card">
+              <div class="preview-card-icon preview-card-icon--rose">
+                <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f43f5e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 2a9 9 0 1 0 9 9"/><path d="M12 6v6l4 2"/>
+                </svg>
+              </div>
+              <div class="preview-card-title">Why silence feels safe</div>
+              <div class="preview-card-desc">The biology behind your avoidance instinct — and why it got you promoted.</div>
             </div>
-            <div class="agenda-item">
-              <svg class="agenda-icon" viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg>
-              <div class="agenda-text">A four-part framework ready before your next 1:1</div>
-            </div>
-            <div class="agenda-item">
-              <svg class="agenda-icon" viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg>
-              <div class="agenda-text">Practiced a realistic performance conversation safely</div>
-            </div>
-            <div class="agenda-item">
-              <svg class="agenda-icon" viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg>
-              <div class="agenda-text">One specific commitment for this week</div>
-            </div>
-          </div>
-        </div>
 
-        <!-- Course map -->
-        <div class="cal-map fade-up">
-          <div class="cal-map-label">Agenda</div>
-          <div class="map-list">
-            <a href="stage1.html" class="map-link">
-              <div class="map-item map-item--ready">
-                <div class="map-dot">1</div>
-                <div class="map-text">
-                  <div class="map-name">Recognition</div>
-                  <div class="map-time">8 min &middot; You've been here before</div>
-                </div>
-                <div class="map-arrow">&rsaquo;</div>
+            <div class="preview-card">
+              <div class="preview-card-icon preview-card-icon--indigo">
+                <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#818cf8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="6" cy="12" r="3"/><circle cx="18" cy="6" r="3"/><circle cx="18" cy="18" r="3"/><line x1="8.7" y1="10.7" x2="15.3" y2="7.3"/><line x1="8.7" y1="13.3" x2="15.3" y2="16.7"/>
+                </svg>
               </div>
-            </a>
-            <a href="stage2.html" class="map-link">
-              <div class="map-item map-item--ready">
-                <div class="map-dot">2</div>
-                <div class="map-text">
-                  <div class="map-name">Understanding</div>
-                  <div class="map-time">10 min &middot; Why it's actually hard</div>
-                </div>
-                <div class="map-arrow">&rsaquo;</div>
-              </div>
-            </a>
-            <a href="stage3.html" class="map-link">
-              <div class="map-item map-item--ready">
-                <div class="map-dot">3</div>
-                <div class="map-text">
-                  <div class="map-name">The framework</div>
-                  <div class="map-time">10 min &middot; Here's what to say</div>
-                </div>
-                <div class="map-arrow">&rsaquo;</div>
-              </div>
-            </a>
-            <a href="stage4.html" class="map-link">
-              <div class="map-item map-item--core map-item--ready">
-                <div class="map-dot">4</div>
-                <div class="map-text">
-                  <div class="map-name">Practice</div>
-                  <div class="map-time">15 min &middot; Now try it for real</div>
-                  <div class="map-badges">
-                    <span class="map-badge map-badge--sim">Simulation</span>
-                  </div>
-                </div>
-                <div class="map-arrow">&rsaquo;</div>
-              </div>
-            </a>
-            <a href="stage5.html" class="map-link">
-              <div class="map-item map-item--ready">
-                <div class="map-dot">5</div>
-                <div class="map-text">
-                  <div class="map-name">Transfer</div>
-                  <div class="map-time">7 min &middot; Your commitment</div>
-                </div>
-                <div class="map-arrow">&rsaquo;</div>
-              </div>
-            </a>
-            <a href="job-aid.html" class="map-link">
-              <div class="map-item map-item--ready">
-                <div class="map-dot map-item--aid" style="background:rgba(255,255,255,0.04);border-color:var(--border-default);color:var(--text-tertiary);font-size:12px;">&infin;</div>
-                <div class="map-text">
-                  <div class="map-name" style="color:var(--text-secondary);">Job aid</div>
-                  <div class="map-time">Always available &middot; Checklist</div>
-                </div>
-                <div class="map-arrow">&rsaquo;</div>
-              </div>
-            </a>
-          </div>
-        </div>
+              <div class="preview-card-title">Your avoidance pattern</div>
+              <div class="preview-card-desc">Three distinct patterns managers fall into — and a self-assessment to find yours.</div>
+            </div>
 
-        <!-- Privacy note -->
-        <div class="cal-note fade-up">
-          <svg class="cal-note-icon" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-          <div class="cal-note-text">
-            The simulation is private. Nothing you do or say is reported to your manager or HR. You can replay as many times as you like.
-          </div>
-        </div>
+            <div class="preview-card">
+              <div class="preview-card-icon preview-card-icon--cyan">
+                <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                </svg>
+              </div>
+              <div class="preview-card-title">The hidden cost</div>
+              <div class="preview-card-desc">What one avoided conversation actually costs your team — the number surprises most managers.</div>
+            </div>
 
-        <!-- Accept button -->
-        <div class="cal-footer fade-up">
-          <button class="btn btn--primary" id="begin-btn">
-            Accept &amp; begin &rarr;
-            <span class="btn-pulse-ring"></span>
-          </button>
-          <span class="cal-save-note">Progress saves automatically</span>
+          </div>
         </div>
 
       </div>
+    </main>
+  </div><!-- /.app-shell -->
 
-    </div>
-  </main>
-
+  <script src="a11y.js"></script>
   <script src="text-size.js"></script>
   <script>
-    // Set today's date
-    const dateEl = document.getElementById('cal-date');
-    const now = new Date();
-    const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-    const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-    dateEl.textContent = days[now.getDay()] + ', ' + months[now.getMonth()] + ' ' + now.getDate();
 
-    // Staggered fade-in
+    // ── Sidebar collapsible toggle ──────────────────────────────────
+    function toggleSidebarSection(toggle) {
+      const screens = toggle.nextElementSibling;
+      if (!screens || !screens.classList.contains('sidebar-collapsible')) return;
+      screens.classList.toggle('sidebar-collapsible--open');
+      toggle.classList.toggle('sidebar-module-toggle--open');
+    }
+    // ── Staggered fade-in ──────────────────────────────────────
     document.addEventListener('DOMContentLoaded', () => {
       document.querySelectorAll('.fade-up').forEach((el, i) => {
-        setTimeout(() => el.classList.add('visible'), 200 + i * 150);
+        setTimeout(() => el.classList.add('visible'), 120 + i * 120);
       });
     });
 
-    // Begin
-    document.getElementById('begin-btn').addEventListener('click', () => {
+    // ── Name input — save and navigate ────────────────────────
+    const nameInput = document.getElementById('learner-name');
+    const beginBtn  = document.getElementById('begin-btn');
+
+    // Restore saved name if returning to this page
+    const savedName = localStorage.getItem('nb_learner_name');
+    if (savedName) nameInput.value = savedName;
+
+    // ── Begin training — always clickable ─────────────────────
+    beginBtn.addEventListener('click', () => {
+      const name = nameInput.value.trim();
+      if (name) localStorage.setItem('nb_learner_name', name);
       window.location.href = 'stage1.html';
     });
+
+    // Allow Enter key to submit
+    nameInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter') beginBtn.click();
+    });
+
+    // ── Sidebar — mark completed modules ──────────────────
+    (function () {
+      try {
+        const data = JSON.parse(localStorage.getItem('nb-tracker'));
+        if (!data || !data.highestStage) return;
+        const highest = data.highestStage;
+        for (let stage = 1; stage <= highest && stage <= 4; stage++) {
+          const heading = document.getElementById('sheading-' + stage);
+          if (heading) heading.style.color = 'var(--indigo-600)';
+        }
+      } catch (e) {}
+    })();
   </script>
 
 </body>

@@ -3,139 +3,580 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Stage 4 — Practice · NovaBridge</title>
+  <title>Module 4 — Knowledge Check · NovaBridge</title>
   <link rel="stylesheet" href="tokens.css">
   <style>
-    .stage-page { position: relative; z-index: 1; padding: var(--space-8) var(--space-4); }
-    .stage-container { max-width: var(--max-width-course); margin: 0 auto; width: 100%; }
-    .screen { display: none; }
+
+    /* ─────────────────────────────────────────
+       APP SHELL
+    ───────────────────────────────────────── */
+    .app-shell {
+      display: flex;
+      min-height: calc(100vh - var(--nav-height));
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ─────────────────────────────────────────
+       SIDEBAR
+    ───────────────────────────────────────── */
+    .sidebar {
+      width: 288px;
+      flex-shrink: 0;
+      background: #ffffff;
+      border-right: 1px solid #e5e3f0;
+      position: sticky;
+      top: var(--nav-height);
+      height: calc(100vh - var(--nav-height));
+      overflow-y: auto;
+      padding: var(--space-6) 0 var(--space-10);
+    }
+
+    .sidebar-section {
+      padding: 0 var(--space-5) var(--space-4);
+      font-size: var(--text-2xs);
+      font-weight: var(--weight-semi);
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      color: #6b67a0;
+    }
+
+    .sidebar-divider {
+      height: 1px;
+      background: #eeecf8;
+      margin: var(--space-3) var(--space-5);
+    }
+
+    /* Module heading — caps label */
+    .sidebar-module-heading {
+      padding: var(--space-3) var(--space-5) var(--space-2);
+      font-size: var(--text-2xs);
+      font-weight: var(--weight-semi);
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      color: #6b67a0;
+      cursor: pointer;
+    }
+
+    .sidebar-module-heading:hover {
+      color: #6b67a0;
+    }
+
+    .sidebar-module-heading--active {
+      color: var(--indigo-600);
+    }
+
+    /* Collapsible module toggle (same as stage2.html) */
+    .sidebar-module-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-3) var(--space-5) var(--space-2);
+      font-size: var(--text-2xs);
+      font-weight: var(--weight-semi);
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      color: #6b67a0;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .sidebar-module-toggle:hover { color: #6b67a0; }
+    .sidebar-module-toggle--active { color: var(--indigo-600); }
+
+    .sidebar-chevron {
+      transition: transform 0.25s ease;
+      flex-shrink: 0;
+    }
+
+    .sidebar-module-toggle--open .sidebar-chevron { transform: rotate(180deg); }
+
+    .sidebar-collapsible {
+      max-height: 0;
+      overflow: hidden;
+      padding: 0 var(--space-3) 0 var(--space-5);
+      transition: max-height 0.3s ease, padding 0.3s ease;
+    }
+
+    .sidebar-collapsible--open {
+      max-height: 500px;
+      padding: 0 var(--space-3) var(--space-4) var(--space-5);
+    }
+
+    .sidebar-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: 6px var(--space-3);
+      border-radius: var(--radius-sm);
+      font-size: var(--text-xs);
+      color: #6b67a0;
+      margin-bottom: 2px;
+      cursor: pointer;
+      transition: background var(--transition-fast), color var(--transition-fast);
+      user-select: none;
+    }
+
+    .sidebar-item:hover {
+      background: #f4f2fc;
+      color: #3d3a6e;
+    }
+
+    .sidebar-item--done {
+      color: #6b67a0;
+    }
+
+    .sidebar-item--done:hover {
+      background: #f4f2fc;
+      color: #3d3a6e;
+    }
+
+    .sidebar-item--active {
+      color: var(--indigo-600);
+      background: rgba(99,102,241,0.08);
+      font-weight: var(--weight-medium);
+    }
+
+    /* Screen number / check circle */
+    .sidebar-step-num {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--text-2xs);
+      font-weight: var(--weight-semi);
+      flex-shrink: 0;
+      background: #f0eef8;
+      color: #6b67a0;
+      border: 1px solid #e2e0f0;
+      transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
+    }
+
+    .sidebar-item--active .sidebar-step-num {
+      background: var(--grad-primary);
+      color: #fff;
+      border-color: transparent;
+      box-shadow: 0 0 6px rgba(99,102,241,0.4);
+    }
+
+    .sidebar-item--done .sidebar-step-num {
+      background: rgba(99,102,241,0.12);
+      color: var(--indigo-600);
+      border-color: rgba(99,102,241,0.30);
+    }
+
+    /* ─────────────────────────────────────────
+       CONTENT AREA
+    ───────────────────────────────────────── */
+    .content-area {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      justify-content: center;
+      padding: var(--space-12) var(--space-6) var(--space-12);
+    }
+
+    .screen { display: none; max-width: 1075px; width: 100%; }
     .screen.active { display: block; }
 
-    /* ── Setup screens ── */
-    .setup-narration p {
-      font-size: var(--text-base); color: var(--text-secondary);
-      line-height: var(--leading-loose); margin-bottom: var(--space-4);
-    }
-    .setup-narration .emphasis {
-      color: var(--text-primary); font-weight: var(--weight-medium);
-    }
-
-    /* ── Slack notification ── */
-    .slack-msg {
-      background: var(--bg-glass); border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-lg); padding: var(--space-4) var(--space-5);
-      margin: var(--space-6) 0;
-    }
-    .slack-from {
-      font-size: var(--text-xs); font-weight: var(--weight-semi);
-      color: var(--text-tertiary); margin-bottom: var(--space-2);
-      text-transform: uppercase; letter-spacing: 0.06em;
-    }
-    .slack-text {
-      font-size: var(--text-sm); color: var(--text-secondary);
-      line-height: var(--leading-base); font-style: italic;
+    /* ─────────────────────────────────────────
+       BREADCRUMB
+    ───────────────────────────────────────── */
+    .breadcrumb {
+      font-size: var(--text-xxs);
+      font-weight: var(--weight-semi);
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      color: var(--violet-400);
+      margin-bottom: var(--space-5);
     }
 
-    /* ── Sim wrapper ── */
-    .sim-wrap {
-      border-radius: var(--radius-xl); overflow: hidden;
-      border: 1px solid var(--border-subtle); background: rgba(255,255,255,0.02);
-    }
-
-    /* ── Back / action buttons ── */
-    .btn-back {
-      display: inline-flex; align-items: center; gap: 6px;
-      background: none; border: none; font-family: var(--font);
-      font-size: var(--text-sm); color: var(--text-tertiary);
-      cursor: pointer; padding: 4px 0; margin-bottom: var(--space-4);
-      transition: color var(--transition-fast); text-decoration: none;
-    }
-    .btn-back:hover { color: var(--text-secondary); }
-    .btn-back svg {
-      width: 16px; height: 16px; stroke: currentColor;
-      fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
-    }
-    .stage-action { text-align: center; padding-top: var(--space-6); }
-
-    /* ── Debrief screens ── */
-    .debrief-text {
-      font-size: var(--text-base); color: var(--text-secondary);
-      line-height: var(--leading-loose); margin-bottom: var(--space-4);
-    }
-    .debrief-emphasis {
-      color: var(--text-primary); font-weight: var(--weight-medium);
-    }
-    .debrief-quote {
-      font-size: var(--text-lg); color: var(--text-primary);
-      font-style: italic; text-align: center;
-      padding: var(--space-6) 0; font-weight: var(--weight-medium);
-    }
-
-    /* ── Timeline (avoid path) ── */
-    .timeline { margin: var(--space-6) 0; }
-    .tl-item {
-      padding: var(--space-4) var(--space-5);
-      border-left: 2px solid var(--border-default);
-      margin-left: var(--space-3);
+    /* ─────────────────────────────────────────
+       HEADINGS
+    ───────────────────────────────────────── */
+    .screen-title {
+      font-size: clamp(28px, 4vw, 42px);
+      font-weight: var(--weight-semi);
+      line-height: var(--leading-tight);
+      color: var(--text-primary);
       margin-bottom: var(--space-4);
-      opacity: 0; transform: translateY(8px);
+    }
+
+    .screen-subtitle {
+      font-size: var(--text-base);
+      color: var(--text-secondary);
+      line-height: var(--leading-base);
+      max-width: 62ch;
+      margin-bottom: var(--space-10);
+    }
+
+    /* ─────────────────────────────────────────
+       MODULE 3 — same card system as Module 2.
+       One neutral violet palette: these costs
+       belong to every manager, not one character.
+    ───────────────────────────────────────── */
+    .cost-screen {
+      --accent:      #a78bfa;
+      --accent-soft: rgba(124,58,237,0.12);
+      --accent-line: rgba(124,58,237,0.40);
+      --accent-ink:  #6d28d9;
+      --accent-wash: #f7f5ff;
+      --accent-tint: #fbfaff;
+      --accent-bar:  #7c3aed;
+    }
+
+    /* Meta row — breadcrumb left, step counter right */
+    .ps-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: var(--space-3);
+      margin-bottom: var(--space-5);
+    }
+
+    .ps-meta .breadcrumb { margin-bottom: 0; }
+
+    .ps-step {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-3);
+      font-size: var(--text-2xs);
+      font-weight: var(--weight-semi);
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.75);
+    }
+
+    .ps-dots { display: inline-flex; gap: 6px; }
+
+    .ps-dots i {
+      width: 8px;
+      height: 8px;
+      border-radius: var(--radius-pill);
+      background: rgba(255,255,255,0.18);
+    }
+
+    .ps-dots i.is-active { width: 22px; background: var(--accent); }
+
+    .cs-card {
+      border-radius: var(--radius-xl);
+      padding: var(--space-8);
+      background: var(--accent-tint);
+      box-shadow: inset 4px 0 0 var(--accent-bar), 0 12px 32px rgba(0,0,0,0.28);
+    }
+
+    .cs-lead {
+      max-width: 46ch;
+      margin-bottom: var(--space-8);
+      color: var(--text-primary);
+    }
+
+    .cs-lead span { color: rgba(255,255,255,0.62); }
+
+    /* ── Knowledge check ──────────────────── */
+    .qz-card {
+      border-radius: var(--radius-xl);
+      padding: var(--space-8);
+      background: var(--accent-tint);
+      box-shadow: inset 4px 0 0 var(--accent-bar), 0 12px 32px rgba(0,0,0,0.28);
+    }
+
+    .qz-eyebrow {
+      display: inline-block;
+      margin-bottom: var(--space-5);
+      padding: 2px 10px;
+      border-radius: var(--radius-pill);
+      background: var(--accent-soft);
+      color: var(--accent-ink);
+      font-size: var(--text-2xs);
+      font-weight: var(--weight-semi);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .qz-question {
+      margin-bottom: var(--space-6);
+      font-size: var(--text-base);
+      font-weight: var(--weight-semi);
+      line-height: var(--leading-base);
+      color: #1a1745;
+    }
+
+    .qz-quote {
+      display: block;
+      margin: var(--space-4) 0;
+      padding-left: var(--space-5);
+      border-left: 3px solid var(--accent-line);
+      font-weight: var(--weight-normal);
+      color: #4a4775;
+    }
+
+    .qz-options {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+    }
+
+    .qz-opt {
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+      width: 100%;
+      min-height: 52px;
+      padding: var(--space-4) var(--space-5);
+      border: 1px solid var(--accent-line);
+      border-radius: var(--radius-lg);
+      background: #ffffff;
+      color: #1a1745;
+      font-family: var(--font);
+      font-size: var(--text-sm);
+      line-height: var(--leading-base);
+      text-align: left;
+      cursor: pointer;
+      transition: border-color 0.15s, box-shadow 0.15s, opacity 0.15s;
+    }
+
+    .qz-opt:not(:disabled):hover {
+      border-color: var(--accent-bar);
+      box-shadow: 0 2px 8px var(--accent-soft);
+    }
+
+    /* Answered states */
+    .qz-opt.is-correct { border-color: #16a34a; border-width: 2px; background: #f4fdf7; }
+    .qz-opt.is-wrong   { border-color: #e11d48; border-width: 2px; background: #fff5f7; }
+    .qz-opt.is-dim     { opacity: 0.45; }
+
+    .qz-mark {
+      flex-shrink: 0;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--text-xs);
+      font-weight: var(--weight-semi);
+      color: #ffffff;
+    }
+
+    .qz-mark--correct { background: #16a34a; }
+    .qz-mark--wrong   { background: #e11d48; }
+
+    .qz-feedback {
+      margin-top: var(--space-6);
+      padding-top: var(--space-5);
+      border-top: 1px solid rgba(26,23,69,0.08);
+      font-size: var(--text-sm);
+      line-height: var(--leading-base);
+      color: #4a4775;
+      animation: qz-in 0.3s ease;
+    }
+
+    .qz-feedback strong { color: #1a1745; }
+
+    /* Q3 — three scenarios, one driver each */
+    .qz-sort-row { padding-top: var(--space-5); }
+    .qz-sort-row + .qz-sort-row {
+      margin-top: var(--space-5);
+      border-top: 1px solid rgba(26,23,69,0.08);
+    }
+
+    .qz-sort-scenario {
+      margin-bottom: var(--space-4);
+      font-size: var(--text-sm);
+      line-height: var(--leading-base);
+      color: #4a4775;
+    }
+
+    .qz-sort-choices {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-2);
+    }
+
+    .qz-sort-choices .qz-opt {
+      min-height: 48px;
+      justify-content: center;
+      text-align: center;
+      font-size: var(--text-xs);
+    }
+
+    /* Result */
+    .qz-score {
+      font-size: clamp(44px, 6vw, 64px);
+      font-weight: 700;
+      line-height: 1;
+      color: var(--accent-ink);
+      text-align: center;
+    }
+
+    .qz-verdict {
+      margin: var(--space-3) 0 var(--space-5);
+      font-size: var(--text-base);
+      font-weight: var(--weight-semi);
+      text-align: center;
+      color: #1a1745;
+    }
+
+    .qz-verdict--pass span { color: #15803d; }
+    .qz-verdict--retry span { color: var(--accent-ink); }
+
+    .qz-result-note {
+      max-width: 52ch;
+      margin: 0 auto var(--space-6);
+      font-size: var(--text-sm);
+      line-height: var(--leading-base);
+      color: #4a4775;
+      text-align: center;
+    }
+
+    .qz-list {
+      list-style: none;
+      margin: 0;
+      padding: var(--space-5) 0 0;
+      border-top: 1px solid rgba(26,23,69,0.08);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+    }
+
+    .qz-list li {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      font-size: var(--text-sm);
+      color: #4a4775;
+    }
+
+    .qz-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-3);
+      margin-top: var(--space-6);
+    }
+
+    .qz-btn {
+      min-height: 48px;
+      padding: 0 var(--space-6);
+      border-radius: var(--radius-lg);
+      border: 0;
+      background: var(--accent-bar);
+      color: #ffffff;
+      font-family: var(--font);
+      font-size: var(--text-sm);
+      font-weight: var(--weight-semi);
+      cursor: pointer;
+      transition: opacity 0.15s, box-shadow 0.15s;
+    }
+
+    .qz-btn:hover { box-shadow: 0 4px 14px rgba(124,58,237,0.35); }
+    .qz-btn:disabled { opacity: 0.35; cursor: default; box-shadow: none; }
+
+    .qz-btn--ghost {
+      background: #ffffff;
+      color: var(--accent-ink);
+      border: 1px solid var(--accent-line);
+    }
+
+    .qz-btn--ghost:hover { box-shadow: 0 2px 8px var(--accent-soft); }
+
+    /* Closing words — the course ends here */
+    .qz-close {
+      max-width: 60ch;
+      margin-top: var(--space-6);
+      padding-top: var(--space-5);
+      border-top: 1px solid rgba(26,23,69,0.08);
+      font-size: var(--text-sm);
+      line-height: var(--leading-base);
+      color: #4a4775;
+    }
+
+    .qz-close p + p { margin-top: var(--space-4); }
+
+    .qz-close-title {
+      font-size: var(--text-base);
+      font-weight: var(--weight-semi);
+      color: #1a1745;
+    }
+
+    @keyframes qz-in {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: none; }
+    }
+
+    @media (max-width: 768px) {
+      .qz-card { padding: var(--space-6); }
+      .qz-sort-choices { grid-template-columns: 1fr; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .qz-feedback { animation: none; }
+    }
+
+    /* ─────────────────────────────────────────
+       BOTTOM NAV
+    ───────────────────────────────────────── */
+    .bottom-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: var(--space-8);
+      padding-top: var(--space-6);
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    .bottom-nav-left { display: flex; align-items: center; gap: var(--space-4); }
+
+    .btn-ghost {
+      padding: 10px 20px;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-default);
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: var(--text-sm);
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s;
+    }
+
+    .btn-ghost:hover { border-color: var(--indigo-400); color: var(--text-primary); }
+
+    /* ─────────────────────────────────────────
+       FADE UP
+    ───────────────────────────────────────── */
+    .fade-up {
+      opacity: 0;
+      transform: translateY(12px);
       transition: opacity 0.5s ease, transform 0.5s ease;
     }
-    .tl-item.visible { opacity: 1; transform: translateY(0); }
-    .tl-day {
-      font-size: var(--text-xs); font-weight: var(--weight-semi);
-      color: var(--rose-300); text-transform: uppercase;
-      letter-spacing: 0.06em; margin-bottom: var(--space-2);
-    }
-    .tl-text {
-      font-size: var(--text-sm); color: var(--text-secondary);
-      line-height: var(--leading-base);
-    }
-    .tl-text em { color: var(--text-primary); font-style: normal; font-weight: var(--weight-medium); }
 
-    /* ── ONAA pills ── */
-    .onaa-pills {
-      display: flex; flex-wrap: wrap; justify-content: center;
-      gap: var(--space-2); margin: var(--space-5) 0;
-    }
-
-    /* ── AI coaching card ── */
-    .coaching-placeholder {
-      text-align: center; padding: var(--space-6) 0;
-    }
-    .coaching-placeholder p {
-      font-size: var(--text-sm); color: var(--text-tertiary);
-      font-style: italic;
-    }
-
-    /* ── Fade ── */
-    .fade-up {
-      opacity: 0; transform: translateY(12px);
-      transition: opacity 0.6s ease, transform 0.6s ease;
-    }
     .fade-up.visible { opacity: 1; transform: translateY(0); }
 
-    @media (max-width: 480px) {
-      .stage-page { padding: var(--space-5) var(--space-4); }
+    /* ─────────────────────────────────────────
+       RESPONSIVE
+    ───────────────────────────────────────── */
+    @media (max-width: 768px) {
+      .sidebar { display: none; }
+      .content-area { padding: var(--space-8) var(--space-4); }
     }
+
   </style>
 </head>
 <body>
 
-  <div class="bg-orbs" data-stage="4">
-    <div class="orb orb-1"></div><div class="orb orb-2"></div><div class="orb orb-3"></div>
+  <div class="bg-orbs">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
   </div>
 
+  <!-- ── Navigation ── -->
   <nav class="nav">
-    <a href="index.html" class="nav-brand nav-link" style="font-size:var(--text-sm);font-weight:var(--weight-semi);color:var(--text-primary);text-decoration:none;">&larr; Course overview</a>
-    <div class="progress-nav">
-      <div class="prog-dot prog-dot--done">1</div><div class="prog-line"></div>
-      <div class="prog-dot prog-dot--done">2</div><div class="prog-line"></div>
-      <div class="prog-dot prog-dot--done">3</div><div class="prog-line"></div>
-      <div class="prog-dot prog-dot--active">4</div><div class="prog-line"></div>
-      <div class="prog-dot prog-dot--upcoming">5</div>
-    </div>
+    <span class="nav-brand">NovaBridge &middot; People Development</span>
     <div style="display:flex;align-items:center;gap:var(--space-4);">
+      <span class="nav-counter" id="nav-counter">12 / 12</span>
       <div class="text-toggle">
         <button class="text-toggle-btn text-toggle-btn--sm" data-size="text-sm">A</button>
         <button class="text-toggle-btn text-toggle-btn--md" data-size="text-md">A</button>
@@ -145,681 +586,451 @@
     </div>
   </nav>
 
-  <!-- SVG character definitions -->
-  <svg xmlns="http://www.w3.org/2000/svg" style="display:none;">
-    <defs>
-      <!-- Jordan — indigo/violet, short neat hair, clean-shaven, confident but new to management -->
-      <symbol id="icon-jordan" viewBox="0 0 72 72">
-        <circle cx="36" cy="36" r="36" fill="rgba(99,102,241,0.10)"/>
-        <circle cx="36" cy="36" r="33" fill="none" stroke="rgba(99,102,241,0.25)" stroke-width="1"/>
-        <!-- Hair -->
-        <path d="M22 27 Q23 15 36 14 Q49 15 50 27 Q50 23 47 20 Q43 17 36 16 Q29 17 25 20 Q22 23 22 27Z" fill="#1e1535"/>
-        <ellipse cx="36" cy="23" rx="15" ry="8" fill="#1e1535"/>
-        <!-- Neck -->
-        <rect x="31" y="44" width="10" height="6" rx="3" fill="#c49a6c"/>
-        <!-- Shoulders / hoodie -->
-        <path d="M20 54 Q25 48 36 48 Q47 48 52 54 Q54 58 54 62 L18 62 Q18 58 20 54Z" fill="rgba(99,102,241,0.40)"/>
-        <!-- Hoodie collar -->
-        <path d="M30 50 Q36 54 42 50" stroke="rgba(79,70,229,0.5)" stroke-width="1" fill="none"/>
-        <!-- Face -->
-        <ellipse cx="36" cy="33" rx="14" ry="14.5" fill="#c49a6c"/>
-        <!-- Hair overlay -->
-        <path d="M22 27 Q23 18 36 17 Q49 18 50 27 L50 24 Q49 16 36 15 Q23 16 22 24Z" fill="#1e1535"/>
-        <!-- Eyebrows -->
-        <path d="M27 29 L33 28" stroke="#1e1535" stroke-width="1.3" stroke-linecap="round"/>
-        <path d="M39 28 L45 29" stroke="#1e1535" stroke-width="1.3" stroke-linecap="round"/>
-        <!-- Eyes -->
-        <ellipse cx="30" cy="32.5" rx="2.2" ry="2.2" fill="#1e1535">
-          <animate attributeName="ry" values="2.2;0.3;2.2" dur="4.5s" repeatCount="indefinite" begin="2.5s"/>
-        </ellipse>
-        <ellipse cx="42" cy="32.5" rx="2.2" ry="2.2" fill="#1e1535">
-          <animate attributeName="ry" values="2.2;0.3;2.2" dur="4.5s" repeatCount="indefinite" begin="2.5s"/>
-        </ellipse>
-        <!-- Eye shine -->
-        <circle cx="31" cy="31.5" r="0.8" fill="rgba(255,255,255,0.5)"/>
-        <circle cx="43" cy="31.5" r="0.8" fill="rgba(255,255,255,0.5)"/>
-        <!-- Slight smile -->
-        <path d="M33 39 Q36 40.5 39 39" stroke="#9a7550" stroke-width="1.2" fill="none" stroke-linecap="round"/>
-      </symbol>
+  <div class="app-shell">
 
-      <!-- Priya — rose/pink, long dark hair, warm expression -->
-      <symbol id="icon-priya" viewBox="0 0 72 72">
-        <circle cx="36" cy="36" r="36" fill="rgba(236,72,153,0.10)"/>
-        <circle cx="36" cy="36" r="33" fill="none" stroke="rgba(236,72,153,0.25)" stroke-width="1"/>
-        <!-- Hair back (long, dark) -->
-        <ellipse cx="36" cy="30" rx="18" ry="19" fill="#1a0e14"/>
-        <!-- Hair sides flowing down -->
-        <path d="M18 30 Q16 44 20 54" stroke="#1a0e14" stroke-width="6" fill="none" stroke-linecap="round"/>
-        <path d="M54 30 Q56 44 52 54" stroke="#1a0e14" stroke-width="6" fill="none" stroke-linecap="round"/>
-        <!-- Neck -->
-        <rect x="31" y="43" width="10" height="6" rx="3" fill="#8d6840"/>
-        <!-- Shoulders -->
-        <path d="M22 54 Q26 48 36 48 Q46 48 50 54 Q52 58 52 62 L20 62 Q20 58 22 54Z" fill="rgba(236,72,153,0.30)"/>
-        <!-- Face -->
-        <ellipse cx="36" cy="33" rx="13.5" ry="14" fill="#8d6840"/>
-        <!-- Hair front (parted) -->
-        <path d="M23 27 Q25 17 36 16 Q47 17 49 27 Q47 23 43 21 Q39 23 36 20 Q33 23 29 21 Q25 23 23 27Z" fill="#1a0e14"/>
-        <!-- Bindi -->
-        <circle cx="36" cy="24.5" r="1.2" fill="rgba(236,72,153,0.6)"/>
-        <!-- Eyes -->
-        <ellipse cx="30.5" cy="33" rx="2" ry="2.3" fill="#1a0e06">
-          <animate attributeName="ry" values="2.3;0.3;2.3" dur="3.8s" repeatCount="indefinite" begin="1.8s"/>
-        </ellipse>
-        <ellipse cx="41.5" cy="33" rx="2" ry="2.3" fill="#1a0e06">
-          <animate attributeName="ry" values="2.3;0.3;2.3" dur="3.8s" repeatCount="indefinite" begin="1.8s"/>
-        </ellipse>
-        <!-- Eye shine -->
-        <circle cx="31.5" cy="32" r="0.8" fill="rgba(255,255,255,0.55)"/>
-        <circle cx="42.5" cy="32" r="0.8" fill="rgba(255,255,255,0.55)"/>
-        <!-- Eyelashes hint -->
-        <path d="M28 31 L29 30.5" stroke="#1a0e06" stroke-width="0.6" stroke-linecap="round"/>
-        <path d="M44 30.5 L43 31" stroke="#1a0e06" stroke-width="0.6" stroke-linecap="round"/>
-        <!-- Warm smile -->
-        <path d="M32 38.5 Q36 41.5 40 38.5" stroke="#6b4e30" stroke-width="1.2" fill="none" stroke-linecap="round"/>
-        <!-- Slight blush -->
-        <circle cx="27" cy="36" r="2.5" fill="rgba(236,72,153,0.12)"/>
-        <circle cx="45" cy="36" r="2.5" fill="rgba(236,72,153,0.12)"/>
-        <!-- Earrings -->
-        <circle cx="20" cy="36" r="1.2" fill="rgba(251,191,36,0.5)"/>
-        <circle cx="52" cy="36" r="1.2" fill="rgba(251,191,36,0.5)"/>
-      </symbol>
-    </defs>
-  </svg>
+    <!-- ═══════════════════════════════════════
+         SIDEBAR
+    ═══════════════════════════════════════ -->
+    <aside class="sidebar">
+      <div class="sidebar-section">Course 1 &middot; Avoidance</div>
 
-  <main class="stage-page">
-    <div class="stage-container">
+      <!-- START — Welcome -->
+      <div class="sidebar-module-toggle sidebar-module-toggle--open" onclick="toggleSidebarSection(this)">
+        <span>Start</span>
+        <svg class="sidebar-chevron" aria-hidden="true" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+      </div>
+      <div class="sidebar-screens sidebar-collapsible sidebar-collapsible--open">
+        <div class="sidebar-item sidebar-item--done" onclick="window.location.href='index.html'">
+          <div class="sidebar-step-num">✓</div>
+          Welcome
+        </div>
+      </div>
 
-      <!-- ============================================
-           SCREEN 4.1 — Setup
-           ============================================ -->
-      <div class="screen active" id="screen-setup">
-        <a href="stage3.html" class="btn-back">
-          <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
-          Back to Stage 3
-        </a>
+      <div class="sidebar-divider"></div>
 
-        <h1 class="fade-up" style="font-size:var(--text-2xl);font-weight:var(--weight-semi);color:var(--text-primary);margin-bottom:var(--space-2);margin-top:var(--space-4);">The 1:1 with Priya</h1>
+      <!-- Module 1 — ANATOMY -->
+      <div class="sidebar-module-toggle sidebar-module-toggle--open" onclick="toggleSidebarSection(this)">
+        <span>The Anatomy of Avoiding</span>
+        <svg class="sidebar-chevron" aria-hidden="true" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+      </div>
+      <div class="sidebar-screens sidebar-collapsible sidebar-collapsible--open">
+        <div class="sidebar-item sidebar-item--done" onclick="window.location.href='stage1.html'">
+          <div class="sidebar-step-num">1</div>
+          The familiar choice
+        </div>
+        <div class="sidebar-item sidebar-item--done" onclick="window.location.href='stage1.html'">
+          <div class="sidebar-step-num">2</div>
+          Why friction feels like danger
+        </div>
+        <div class="sidebar-item sidebar-item--done" onclick="window.location.href='stage1.html'">
+          <div class="sidebar-step-num">3</div>
+          The Promotion Paradox
+        </div>
+      </div>
 
-        <p class="fade-up" style="font-size:var(--text-base);color:var(--text-secondary);margin-bottom:var(--space-6);max-width:100%;">You'll play as Jordan, a new engineering manager. The choices you make shape how the conversation goes. There are no wrong endings, only different ones.</p>
+      <div class="sidebar-divider"></div>
 
-        <div style="display:flex;justify-content:center;gap:var(--space-8);padding:var(--space-4) 0;" class="fade-up" id="setup-chars">
-          <div style="display:flex;flex-direction:column;align-items:center;gap:var(--space-2);">
-            <svg width="72" height="72"><use href="#icon-jordan"/></svg>
-            <span style="font-size:10px;font-weight:var(--weight-semi);letter-spacing:0.06em;text-transform:uppercase;color:var(--indigo-300);">Jordan (you)</span>
+      <!-- Module 2 — PATTERNS -->
+      <div class="sidebar-module-toggle sidebar-module-toggle--open" onclick="toggleSidebarSection(this)">
+        <span>The 3 Patterns of Avoidance</span>
+        <svg class="sidebar-chevron" aria-hidden="true" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+      </div>
+      <div class="sidebar-screens sidebar-collapsible sidebar-collapsible--open">
+        <div class="sidebar-item sidebar-item--done" onclick="window.location.href='stage2.html'">
+          <div class="sidebar-step-num">1</div>
+          Meet the three managers
+        </div>
+        <div class="sidebar-item sidebar-item--done" onclick="window.location.href='stage2.html'">
+          <div class="sidebar-step-num">2</div>
+          Sarah
+        </div>
+        <div class="sidebar-item sidebar-item--done" onclick="window.location.href='stage2.html'">
+          <div class="sidebar-step-num">3</div>
+          Marcus
+        </div>
+        <div class="sidebar-item sidebar-item--done" onclick="window.location.href='stage2.html'">
+          <div class="sidebar-step-num">4</div>
+          Amara
+        </div>
+        <div class="sidebar-item sidebar-item--done" onclick="window.location.href='stage2.html'">
+          <div class="sidebar-step-num">5</div>
+          Your pattern
+        </div>
+      </div>
+
+      <div class="sidebar-divider"></div>
+
+      <!-- Module 3 — COST -->
+      <div class="sidebar-module-toggle sidebar-module-toggle--open" onclick="toggleSidebarSection(this)">
+        <span>The Cost of Inaction</span>
+        <svg class="sidebar-chevron" aria-hidden="true" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+      </div>
+      <div class="sidebar-screens sidebar-collapsible sidebar-collapsible--open">
+        <div class="sidebar-item sidebar-item--done" onclick="window.location.href='stage3.html'">
+          <div class="sidebar-step-num">1</div>
+          The hidden costs
+        </div>
+        <div class="sidebar-item sidebar-item--done" onclick="window.location.href='stage3.html#1'">
+          <div class="sidebar-step-num">2</div>
+          The $7,500 question
+        </div>
+        <div class="sidebar-item sidebar-item--done" onclick="window.location.href='stage3.html#2'">
+          <div class="sidebar-step-num">3</div>
+          The takeaway
+        </div>
+      </div>
+
+      <div class="sidebar-divider"></div>
+
+      <!-- Module 4 — KNOWLEDGE CHECK (active) -->
+      <div class="sidebar-module-toggle sidebar-module-toggle--active sidebar-module-toggle--open" onclick="toggleSidebarSection(this)">
+        <span>Knowledge Check</span>
+        <svg class="sidebar-chevron" aria-hidden="true" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+      </div>
+      <div class="sidebar-screens sidebar-collapsible sidebar-collapsible--open">
+        <div class="sidebar-item sidebar-item--active" id="sitem-0" data-screen="0">
+          <div class="sidebar-step-num">1</div>
+          Check your understanding
+        </div>
+      </div>
+
+    </aside>
+
+    <!-- ═══════════════════════════════════════
+         MAIN CONTENT
+    ═══════════════════════════════════════ -->
+    <main class="content-area">
+
+      <!-- ══════════════════════════════════
+           MODULE 4 — Knowledge check (12/13)
+      ══════════════════════════════════ -->
+      <div class="screen cost-screen active" id="screen-0">
+
+        <div class="ps-meta fade-up">
+          <div class="breadcrumb">MODULE 4 &middot; KNOWLEDGE CHECK</div>
+          <div class="ps-step" id="qz-progress">
+            Question 1 of 4
+            <span class="ps-dots" id="qz-dots" aria-hidden="true"><i class="is-active"></i><i></i><i></i><i></i></span>
           </div>
-          <div style="display:flex;flex-direction:column;align-items:center;gap:var(--space-2);">
-            <svg width="72" height="72"><use href="#icon-priya"/></svg>
-            <span style="font-size:10px;font-weight:var(--weight-semi);letter-spacing:0.06em;text-transform:uppercase;color:var(--rose-300);">Priya</span>
+        </div>
+
+        <h1 class="screen-title fade-up">Check your understanding</h1>
+
+        <p class="screen-subtitle cs-lead fade-up">
+          Four questions. <span>Answer three correctly to pass. You can retake it.</span>
+        </p>
+
+        <!-- Rendered by renderStep() -->
+        <div class="qz-card fade-up" id="qz-card" aria-live="polite"></div>
+
+        <div class="bottom-nav fade-up">
+          <div class="bottom-nav-left">
+            <button class="btn-ghost" onclick="window.location.href='stage3.html#2'">← Back</button>
           </div>
-        </div>
-
-        <div class="setup-narration fade-up" id="setup-n1">
-          <p class="emphasis">You are Jordan.</p>
-          <p>You got promoted to engineering manager eight months ago. Before that, you were the person everyone came to when something broke. Five years of being the best individual contributor on the team.</p>
-          <p>Nobody questioned the promotion. But nobody taught you how to manage people either.</p>
-        </div>
-
-        <div class="setup-narration fade-up" id="setup-n1b">
-          <p class="emphasis">Priya reports to you.</p>
-          <p>She's a mid-level developer. Smart, quiet, the kind of person who picks up other people's loose ends without being asked. She was on the team before you became her manager.</p>
-          <p>Her sprint tickets have been incomplete three cycles in a row. You've noticed. You haven't said anything.</p>
-        </div>
-
-        <div class="slack-msg fade-up" id="setup-slack">
-          <div class="slack-from">From: Alex Chen (your manager)</div>
-          <div class="slack-text">"Hey, can we talk about Priya's output? The team lead flagged it again. Just want to make sure you're across it."</div>
-        </div>
-
-        <div class="setup-narration fade-up" id="setup-n2">
-          <p class="emphasis">Your 1:1 with Priya is in 30 minutes.</p>
-          <p>You've been telling yourself you'd bring it up when the time felt right. The time never felt right. Now your manager is asking.</p>
-        </div>
-
-        <div class="stage-action fade-up" id="setup-cta">
-          <button class="btn btn--primary" id="btn-open-sim">
-            Open the 1:1 &rarr;
+          <button class="btn btn--primary" id="qz-next" onclick="nextStep()" disabled>
+            Next question →
             <span class="btn-pulse-ring"></span>
           </button>
         </div>
-      </div>
 
-      <!-- ============================================
-           SCREEN 4.2 — Simulation
-           ============================================ -->
-      <div class="screen" id="screen-sim">
-        <div class="sim-wrap">
-          <!-- Header -->
-          <div class="sim-header">
-            <svg width="32" height="32" style="flex-shrink:0;"><use href="#icon-priya"/></svg>
-            <div>
-              <div style="font-size:var(--text-sm);font-weight:var(--weight-medium);color:var(--text-primary);">Priya Rajan</div>
-              <div style="font-size:var(--text-xs);color:var(--text-tertiary);">1:1 &middot; Thursday 2:00pm</div>
-            </div>
-            <div style="margin-left:auto;">
-              <div class="sim-progress">
-                <div class="sim-progress-bar"><div class="sim-progress-fill" id="sim-progress-fill" style="width:33%"></div></div>
-                <div class="sim-progress-label" id="sim-progress-label">Step 1 of 3</div>
-              </div>
-            </div>
-          </div>
+      </div><!-- /#screen-0 -->
 
-          <!-- Chat area -->
-          <div class="chat-area" id="chat-area">
-            <!-- Messages injected by JS -->
-          </div>
+    </main>
+  </div><!-- /.app-shell -->
 
-          <!-- Choice area -->
-          <div class="choice-area" id="choice-area">
-            <!-- Choices injected by JS -->
-          </div>
-        </div>
-      </div>
-
-      <!-- ============================================
-           DEBRIEF SCREENS — one per path
-           ============================================ -->
-
-      <!-- Avoid path -->
-      <div class="screen" id="screen-avoid">
-        <div class="chat-sys fade-up" id="avoid-sys" style="font-size:var(--text-sm);padding:var(--space-4) 0;">The conversation you didn't have.</div>
-
-        <div class="timeline" id="avoid-timeline">
-          <div class="tl-item" data-delay="0">
-            <div class="tl-day">Day 3</div>
-            <div class="tl-text">Your manager follows up: <em>"Did you get a chance to talk to Priya? Team lead flagged two more incomplete tickets this sprint."</em><br>You reply: "Yeah, we chatted. Keeping an eye on it."</div>
-          </div>
-          <div class="tl-item" data-delay="1500">
-            <div class="tl-day">Day 7</div>
-            <div class="tl-text">Priya misses a client-facing deliverable. The account manager escalates directly to your manager. <em>You find out in a Slack channel with six other people in it.</em></div>
-          </div>
-          <div class="tl-item" data-delay="3000">
-            <div class="tl-day">Day 10</div>
-            <div class="tl-text">Your manager calls a meeting. Tone: measured, not hostile. Message: <em>"I need you to have a documented conversation with Priya this week. If this continues, HR will be involved."</em><br>The conversation you avoided for two weeks now has to happen under formal pressure.</div>
-          </div>
-          <div class="tl-item" data-delay="4500">
-            <div class="tl-day">Day 14</div>
-            <div class="tl-text">You have the conversation. It is reactive, defensive, and short. <em>Priya didn't know she was being documented. She feels ambushed.</em><br>After the meeting she sits at her desk for a while. Then she opens LinkedIn.</div>
-          </div>
-        </div>
-
-        <div class="debrief-text fade-up" id="avoid-reveal" style="text-align:center;margin-top:var(--space-6);">
-          <p>Priya had been covering for a colleague on leave for six weeks.<br>She never told anyone &mdash; because no one asked.</p>
-          <p>Six weeks after this conversation, she accepted an offer at another company.</p>
-          <p class="debrief-emphasis">Jordan never found out what was actually going on.</p>
-        </div>
-
-        <div class="typo-moment fade-up" id="avoid-quote">
-          <div class="typo-moment-text typo-moment-text--rose">"I kept waiting for someone to ask."</div>
-        </div>
-
-        <div id="avoid-reflect" class="fade-up">
-          <div class="reflect-card">
-            <div class="reflect-label">Before you see your coaching note</div>
-            <p style="font-size:var(--text-base);color:var(--text-primary);line-height:var(--leading-base);margin-bottom:var(--space-3);">Think about the conversation you had in mind at the start of this course. What do you now understand about why you've been avoiding it?</p>
-            <textarea class="reflect-input" id="reflect-avoid" placeholder="Take a moment. This is just for you." rows="3"></textarea>
-            <p style="font-size:var(--text-xs);color:var(--text-tertiary);margin-top:var(--space-2);">Nothing you write here is submitted or scored.</p>
-          </div>
-        </div>
-
-        <div class="onaa-pills fade-up" id="avoid-pills"></div>
-
-        <div class="stage-action fade-up" id="avoid-cta">
-          <button class="btn btn--ghost" onclick="location.reload()">Try again &nearr;</button>
-          <button class="btn btn--primary" id="btn-continue-avoid" style="margin-left:var(--space-2);">Show me what would have helped &rarr;</button>
-        </div>
-      </div>
-
-      <!-- Clumsy path -->
-      <div class="screen" id="screen-clumsy">
-        <div class="debrief-text fade-up" id="clumsy-sys">
-          <p>Priya left the 1:1. The sprint check-ins started. The tickets continued to be incomplete.</p>
-          <p>Six weeks later, the issue escalated to HR anyway &mdash; not because Priya wasn't trying, but because the real problem was never found.</p>
-        </div>
-
-        <div class="debrief-text fade-up" id="clumsy-reveal" style="text-align:center;">
-          <p class="debrief-emphasis">Priya had been covering for a colleague on leave for six weeks.</p>
-          <p>A planning check-in didn't fix a capacity problem.</p>
-          <p class="debrief-emphasis">The question you didn't ask was the only thing that would have.</p>
-        </div>
-
-        <div id="clumsy-reflect" class="fade-up">
-          <div class="reflect-card">
-            <div class="reflect-label">Private reflection</div>
-            <p style="font-size:var(--text-base);color:var(--text-primary);line-height:var(--leading-base);margin-bottom:var(--space-3);">What do you now understand about why you went to a solution before asking a question?</p>
-            <textarea class="reflect-input" id="reflect-clumsy" placeholder="Take a moment. This is just for you." rows="3"></textarea>
-          </div>
-        </div>
-
-        <div class="onaa-pills fade-up" id="clumsy-pills"></div>
-
-        <div class="stage-action fade-up" id="clumsy-cta">
-          <button class="btn btn--ghost" onclick="location.reload()">Try again &nearr;</button>
-          <button class="btn btn--primary" id="btn-continue-clumsy" style="margin-left:var(--space-2);">Show me what would have helped &rarr;</button>
-        </div>
-      </div>
-
-      <!-- Effective path -->
-      <div class="screen" id="screen-effective">
-        <div class="debrief-text fade-up" id="eff-text">
-          <p class="debrief-emphasis">You asked.</p>
-          <p>That's the thing most managers in Jordan's position don't do &mdash; not because they're bad managers, but because asking feels slower than solving.</p>
-          <p>You asked anyway. And the conversation became something neither of you expected it to be.</p>
-        </div>
-
-        <div id="eff-reflect" class="fade-up">
-          <div class="reflect-card">
-            <div class="reflect-label">Private reflection</div>
-            <p style="font-size:var(--text-base);color:var(--text-primary);line-height:var(--leading-base);margin-bottom:var(--space-3);">Think about the conversation you came in with. What's one thing you now know about it that you didn't know at the start?</p>
-            <textarea class="reflect-input" id="reflect-eff" placeholder="Take a moment. This is just for you." rows="3"></textarea>
-          </div>
-        </div>
-
-        <div class="onaa-pills fade-up" id="eff-pills"></div>
-
-        <div class="stage-action fade-up" id="eff-cta">
-          <button class="btn btn--primary" id="btn-continue-eff">Continue &rarr;<span class="btn-pulse-ring"></span></button>
-        </div>
-      </div>
-
-      <!-- Almost A (took over) -->
-      <div class="screen" id="screen-almostA">
-        <div class="debrief-text fade-up" id="almA-text">
-          <p class="debrief-emphasis">You found the real problem. That's the hardest part &mdash; and you got there.</p>
-          <p>But the way you closed removed something important: Priya's role in the solution.</p>
-          <p>When a manager solves a problem for someone rather than with them, the person learns to wait for the manager to solve the next one.</p>
-        </div>
-
-        <div id="almA-reflect" class="fade-up">
-          <div class="reflect-card">
-            <div class="reflect-label">Private reflection</div>
-            <p style="font-size:var(--text-base);color:var(--text-primary);line-height:var(--leading-base);margin-bottom:var(--space-3);">What would "figuring it out together" have looked like in that specific moment?</p>
-            <textarea class="reflect-input" placeholder="Take a moment." rows="3"></textarea>
-          </div>
-        </div>
-
-        <div class="onaa-pills fade-up" id="almA-pills"></div>
-
-        <div class="stage-action fade-up" id="almA-cta">
-          <button class="btn btn--ghost" onclick="location.reload()">Try again &nearr;</button>
-          <button class="btn btn--primary" id="btn-continue-almA" style="margin-left:var(--space-2);">Show me what would have helped &rarr;</button>
-        </div>
-      </div>
-
-      <!-- Almost B (deferred) -->
-      <div class="screen" id="screen-almostB">
-        <div class="debrief-text fade-up" id="almB-text">
-          <p class="debrief-emphasis">You asked the right question. Priya told you the real thing.</p>
-          <p>And then the moment closed.</p>
-          <p>A performance review date is three months away. What Priya needed was to know that what she'd said had mattered &mdash; right now, today, in this conversation.</p>
-        </div>
-
-        <div id="almB-reflect" class="fade-up">
-          <div class="reflect-card">
-            <div class="reflect-label">Private reflection</div>
-            <p style="font-size:var(--text-base);color:var(--text-primary);line-height:var(--leading-base);margin-bottom:var(--space-3);">What would a specific next step have looked like &mdash; something that showed Priya her honesty had been heard?</p>
-            <textarea class="reflect-input" placeholder="Take a moment." rows="3"></textarea>
-          </div>
-        </div>
-
-        <div class="onaa-pills fade-up" id="almB-pills"></div>
-
-        <div class="stage-action fade-up" id="almB-cta">
-          <button class="btn btn--ghost" onclick="location.reload()">Try again &nearr;</button>
-          <button class="btn btn--primary" id="btn-continue-almB" style="margin-left:var(--space-2);">Show me what would have helped &rarr;</button>
-        </div>
-      </div>
-
-    </div>
-  </main>
-
+  <script src="a11y.js"></script>
   <script src="text-size.js"></script>
-  <script src="tracker.js"></script>
-  <script src="onaa-ref.js"></script>
   <script>
-    NBTracker.stageReached(4);
 
-    // ── State ──
-    const state = { dp1: '', dp2: '', dp3: '', onaaUsed: [], path: '' };
+    // ── State ────────────────────────────────────────────────────────
+    const TOTAL_SCREENS = 1;
+    const NAV_OFFSETS   = [12];
+    const reached = new Set([0]);
 
-    // ── Helpers ──
-    function reveal(el) { if (typeof el === 'string') el = document.getElementById(el); el.classList.add('visible'); }
+    const PASS_MARK = 3;          // of 4 scored questions
+    // Same labels the modules teach, so the quiz doesn't rename them
+    const DRIVERS = ['Fear of Friction', 'Autonomy Projection', 'Political Defense'];
 
-    function revealScreen(id, delay) {
-      const screen = document.getElementById(id);
-      screen.querySelectorAll('.fade-up').forEach((el, i) => {
-        setTimeout(() => reveal(el), delay + i * 200);
+    const STEPS = [
+      {
+        type: 'single',
+        lo: 'Why avoidance happens',
+        question: 'A manager says:<span class="qz-quote">"I\'m going to give her another week to turn it around. She\'s been under a lot of pressure."</span>What\'s most likely happening?',
+        options: [
+          'Considerate management: the report needs time, not feedback.',
+          'The brain is relabeling a delay as thoughtfulness.',
+          'The manager doesn\'t know how to phrase the feedback.',
+          'The manager has decided the problem isn\'t serious.'
+        ],
+        answer: 1,
+        feedback: '<strong>This is The Excuse.</strong> Avoidance wearing a manager\'s vocabulary. Sometimes another week genuinely is the right call. The tell is whether she has been told there is a problem yet. If she hasn\'t, the week isn\'t a plan, it\'s a postponement.'
+      },
+      {
+        type: 'single',
+        lo: 'The Promotion Paradox',
+        question: 'As an individual contributor, Sam avoided friction and was known as easy to work with. Sam now manages six people and still avoids friction. What changed?',
+        options: [
+          'Sam\'s instinct changed after the promotion.',
+          'The instinct is the same. What changed is who absorbs the cost.',
+          'Sam needs to become more confrontational.',
+          'Avoiding friction was always a weakness.'
+        ],
+        answer: 1,
+        feedback: '<strong>The instinct didn\'t change, the job did.</strong> As an IC, staying quiet cost Sam very little. As a manager, that same silence lands on six other people.'
+      },
+      {
+        type: 'sort',
+        lo: 'The three patterns',
+        question: 'What\'s driving each manager\'s avoidance?',
+        rows: [
+          { text: 'Dana carpools with her report Omar every morning. His reports have been late for a month. She keeps deciding to raise it "after the holidays."', answer: 0 },
+          { text: 'Priti was the strongest analyst on her team before being promoted. Her report Luis has made the same error four times. She thinks: "He\'ll catch it himself. That\'s how I learned."', answer: 1 },
+          { text: 'The last two people who raised resourcing problems on Ben\'s project were quietly moved off it. His report is underdelivering, so Ben absorbs the work himself.', answer: 2 }
+        ],
+        feedback: '<strong>Same three reasons, new people.</strong> Dana is protecting a relationship, Priti is projecting her own way of learning, and Ben is reading what his organization rewards. The driver sits underneath the behavior, not in it.'
+      },
+      {
+        type: 'single',
+        lo: 'The hidden costs',
+        question: 'Six weeks after a manager decides not to mention a missed deadline, which is most likely already true <em>and</em> least likely to be visible to that manager?',
+        options: [
+          'The team\'s velocity metric has dropped.',
+          'A teammate who quietly absorbed the work has started looking elsewhere.',
+          'The underperformer has been formally warned.',
+          'Nothing yet. Six weeks is too short for real damage.'
+        ],
+        answer: 1,
+        feedback: '<strong>The first cost lands on the person who never complained.</strong> You find out when they resign, which is the expensive version of the conversation you avoided.'
+      },
+      {
+        type: 'reflect',
+        lo: 'Your own pattern',
+        question: 'Last one, and it isn\'t scored. Think about the conversation you\'ve been putting off. What\'s actually holding you back?',
+        options: [
+          'Protecting the relationship',
+          'Giving them space',
+          'Reading the room',
+          'Not sure yet'
+        ],
+        feedback: '<strong>No wrong answer here.</strong> Whatever you picked, the pattern gets easier to interrupt once you can name it.'
+      }
+    ];
+
+    let step = 0;
+    let answered = false;
+    let sortPicks = [null, null, null];
+    const results = [];          // true / false per scored question
+
+    const card     = document.getElementById('qz-card');
+    const nextBtn  = document.getElementById('qz-next');
+    const progress = document.getElementById('qz-progress');
+
+    // ── Render ───────────────────────────────────────────────────────
+    function renderStep() {
+      answered = false;
+      sortPicks = [null, null, null];
+      nextBtn.disabled = true;
+      nextBtn.innerHTML = (step === STEPS.length - 1 ? 'See my result →' : 'Next question →') +
+                          '<span class="btn-pulse-ring"></span>';
+
+      const s = STEPS[step];
+      const scoredSteps = STEPS.filter(x => x.type !== 'reflect');
+      const label = s.type === 'reflect' ? 'Reflection' : 'Question ' + (step + 1) + ' of ' + scoredSteps.length;
+      // One dot per scored question; all filled once the learner reaches the reflection
+      progress.innerHTML = label + '<span class="ps-dots" aria-hidden="true">' +
+        scoredSteps.map((_, i) => '<i' + (i === step || s.type === 'reflect' ? ' class="is-active"' : '') + '></i>').join('') + '</span>';
+
+      let body = '<div class="qz-eyebrow">' + s.lo + '</div><p class="qz-question">' + s.question + '</p>';
+
+      if (s.type === 'sort') {
+        body += s.rows.map((row, r) =>
+          '<div class="qz-sort-row"><p class="qz-sort-scenario">' + (r + 1) + '. ' + row.text + '</p>' +
+          '<div class="qz-sort-choices">' +
+          DRIVERS.map((d, c) => '<button class="qz-opt" data-row="' + r + '" data-choice="' + c + '" onclick="pickSort(this)">' + d + '</button>').join('') +
+          '</div></div>'
+        ).join('');
+      } else {
+        body += '<div class="qz-options">' +
+          s.options.map((o, i) => '<button class="qz-opt" onclick="pickOption(this,' + i + ')">' + o + '</button>').join('') +
+          '</div>';
+      }
+
+      card.innerHTML = body;
+    }
+
+    // ── Single-answer questions ──────────────────────────────────────
+    function pickOption(btn, i) {
+      if (answered) return;
+      answered = true;
+
+      const s = STEPS[step];
+      const opts = card.querySelectorAll('.qz-opt');
+      const isReflection = s.type === 'reflect';
+      const correct = !isReflection && i === s.answer;
+
+      opts.forEach((o, n) => {
+        o.disabled = true;
+        if (isReflection) {
+          if (n === i) o.classList.add('is-correct'); else o.classList.add('is-dim');
+          return;
+        }
+        if (n === s.answer) {
+          o.classList.add('is-correct');
+          o.insertAdjacentHTML('afterbegin', '<span class="qz-mark qz-mark--correct">✓</span>');
+        } else if (n === i) {
+          o.classList.add('is-wrong');
+          o.insertAdjacentHTML('afterbegin', '<span class="qz-mark qz-mark--wrong">✕</span>');
+        } else {
+          o.classList.add('is-dim');
+        }
       });
+
+      if (!isReflection) results[step] = correct;
+      showFeedback(s.feedback);
     }
 
-    function showScreen(id) {
-      document.querySelectorAll('.screen.active').forEach(s => s.classList.remove('active'));
-      document.getElementById(id).classList.add('active');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      setTimeout(() => revealScreen(id, 150), 100);
+    // ── Q3 — one driver per scenario ─────────────────────────────────
+    function pickSort(btn) {
+      if (answered) return;
+      const row = Number(btn.dataset.row);
+      sortPicks[row] = Number(btn.dataset.choice);
+
+      card.querySelectorAll('.qz-opt[data-row="' + row + '"]').forEach(o => o.classList.remove('is-correct'));
+      btn.classList.add('is-correct');
+
+      if (sortPicks.every(p => p !== null)) gradeSort();
     }
 
-    // ── Chat helpers ──
-    const chatArea = document.getElementById('chat-area');
-    const choiceArea = document.getElementById('choice-area');
+    function gradeSort() {
+      answered = true;
+      const s = STEPS[step];
+      let allRight = true;
 
-    function addMessage(type, text, delay) {
-      return new Promise(resolve => {
-        setTimeout(() => {
-          // Remove typing indicator if exists
-          const typing = chatArea.querySelector('.typing-indicator');
-          if (typing) typing.remove();
+      s.rows.forEach((row, r) => {
+        const opts = card.querySelectorAll('.qz-opt[data-row="' + r + '"]');
+        const picked = sortPicks[r];
+        if (picked !== row.answer) allRight = false;
 
-          if (type === 'system') {
-            const div = document.createElement('div');
-            div.className = 'chat-sys';
-            div.textContent = text;
-            chatArea.appendChild(div);
+        opts.forEach((o, c) => {
+          o.disabled = true;
+          o.classList.remove('is-correct');
+          if (c === row.answer) {
+            o.classList.add('is-correct');
+            o.insertAdjacentHTML('afterbegin', '<span class="qz-mark qz-mark--correct">✓</span>');
+          } else if (c === picked) {
+            o.classList.add('is-wrong');
+            o.insertAdjacentHTML('afterbegin', '<span class="qz-mark qz-mark--wrong">✕</span>');
           } else {
-            const row = document.createElement('div');
-            row.className = 'chat-row' + (type === 'jordan' ? ' chat-row--right' : '');
-            const avatarSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-            avatarSvg.setAttribute('width', '28');
-            avatarSvg.setAttribute('height', '28');
-            avatarSvg.style.flexShrink = '0';
-            const use = document.createElementNS('http://www.w3.org/2000/svg', 'use');
-            use.setAttributeNS('http://www.w3.org/1999/xlink', 'href', type === 'priya' ? '#icon-priya' : '#icon-jordan');
-            avatarSvg.appendChild(use);
-            const bubble = document.createElement('div');
-            bubble.className = 'bubble bubble--' + type;
-            bubble.textContent = text;
-            row.appendChild(avatarSvg);
-            row.appendChild(bubble);
-            chatArea.appendChild(row);
+            o.classList.add('is-dim');
           }
-          chatArea.scrollTop = chatArea.scrollHeight;
-          resolve();
-        }, delay);
-      });
-    }
-
-    function showTyping(delay) {
-      return new Promise(resolve => {
-        setTimeout(() => {
-          const indicator = document.createElement('div');
-          indicator.className = 'typing-indicator';
-          indicator.innerHTML = '<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>';
-          chatArea.appendChild(indicator);
-          chatArea.scrollTop = chatArea.scrollHeight;
-          resolve();
-        }, delay);
-      });
-    }
-
-    function setProgress(step, total) {
-      document.getElementById('sim-progress-fill').style.width = (step / total * 100) + '%';
-      document.getElementById('sim-progress-label').textContent = step === total ? 'Complete' : 'Step ' + step + ' of ' + total;
-    }
-
-    function showChoices(label, choices) {
-      choiceArea.innerHTML = '';
-      const lbl = document.createElement('div');
-      lbl.className = 'choice-label';
-      lbl.textContent = label;
-      choiceArea.appendChild(lbl);
-
-      choices.forEach(c => {
-        const btn = document.createElement('button');
-        btn.className = 'choice-btn';
-        btn.textContent = c.text;
-        btn.addEventListener('click', () => {
-          // Visual feedback
-          choiceArea.querySelectorAll('.choice-btn').forEach(b => {
-            if (b === btn) b.classList.add('choice-btn--selected');
-            else b.classList.add('choice-btn--faded');
-          });
-          setTimeout(() => c.action(), 400);
         });
-        choiceArea.appendChild(btn);
       });
+
+      results[step] = allRight;
+      showFeedback(s.feedback);
     }
 
-    function clearChoices() { choiceArea.innerHTML = ''; }
-
-    function renderPills(containerId, used) {
-      const labels = [
-        { key: 'O', label: 'Observe' },
-        { key: 'A1', label: 'Ask first' },
-        { key: 'N', label: 'Name impact' },
-        { key: 'A2', label: 'Agree next steps' }
-      ];
-      const container = document.getElementById(containerId);
-      labels.forEach(l => {
-        const span = document.createElement('span');
-        span.className = 'tag ' + (used.includes(l.key) ? 'onaa-pill--used' : 'onaa-pill--missed');
-        span.textContent = l.label;
-        container.appendChild(span);
-      });
+    function showFeedback(html) {
+      card.insertAdjacentHTML('beforeend', '<div class="qz-feedback">' + html + '</div>');
+      nextBtn.disabled = false;
     }
 
-    // ── Simulation flow ──
-
-    async function startSim() {
-      showScreen('screen-sim');
-      setProgress(1, 3);
-
-      await addMessage('system', 'Your manager just flagged Priya\'s output. You have 30 minutes.', 300);
-      await showTyping(800);
-      await addMessage('priya', 'Hey! I finished the design review notes you asked for — sent them over this morning. Also, I\'ve been a bit behind on tickets lately. Sorry about that. Anything specific you wanted to cover?', 1000);
-
-      showChoices('How do you open this conversation?', [
-        {
-          text: '"I\'ve noticed your last three sprints had incomplete tickets at end of cycle. I wanted to talk about it directly."',
-          action: () => dp1A()
-        },
-        {
-          text: '"How are you doing? I know things have been busy lately. I wanted to check in before we get into the sprint stuff."',
-          action: () => dp1B()
-        },
-        {
-          text: '"I\'ve been meaning to ask — is everything okay? You seem less engaged than usual."',
-          action: () => dp1C()
-        }
-      ]);
-    }
-
-    // DP1 Choice A — effective (Observe)
-    async function dp1A() {
-      state.dp1 = 'A';
-      state.onaaUsed.push('O');
-      clearChoices();
-      await addMessage('jordan', 'I\'ve noticed your last three sprints had incomplete tickets at end of cycle. I wanted to talk about it directly.', 0);
-      await showTyping(600);
-      await addMessage('priya', 'Yeah. Three sprints. I know. It\'s been a rough few weeks honestly.', 1000);
-      setProgress(2, 3);
-      showDP2();
-    }
-
-    // DP1 Choice B — clumsy (soft opening, buries the issue)
-    async function dp1B() {
-      state.dp1 = 'B';
-      clearChoices();
-      await addMessage('jordan', 'How are you doing? I know things have been busy lately. I wanted to check in before we get into the sprint stuff.', 0);
-      await showTyping(600);
-      await addMessage('priya', 'I\'m fine! Busy, but fine. What sprint stuff did you want to get into?', 1000);
-      await addMessage('system', 'Priya is waiting for you to name the thing. The warm opening felt safe, but it pushed the real conversation further away.', 600);
-      setProgress(2, 3);
-      showDP2();
-    }
-
-    // DP1 Choice C — avoid (judgment disguised as concern)
-    async function dp1C() {
-      state.dp1 = 'C';
-      state.path = 'avoid';
-      clearChoices();
-      await addMessage('jordan', 'I\'ve been meaning to ask — is everything okay? You seem less engaged than usual.', 0);
-      await showTyping(600);
-      await addMessage('priya', '"Less engaged"? I\'ve been here until seven three nights this week. What do you mean, less engaged?', 1200);
-      await addMessage('system', '"Less engaged" is a judgment, not a behavior. Priya can\'t respond to how you feel about her work. She can only defend herself. The conversation is already off track.', 800);
-      await showTyping(400);
-      await addMessage('priya', 'Sorry. I just... I don\'t really know what you\'re asking me.', 1400);
-      await addMessage('system', 'The 1:1 ends at 2:28. Neither of you said what needed to be said.', 1000);
-      setTimeout(() => goToDebrief(), 2000);
-    }
-
-    // DP2
-    function showDP2() {
-      showChoices('Priya acknowledged the issue. What do you do next?', [
-        {
-          text: '"I\'ve got an idea. What if we set up a quick daily check-in just for your tickets? Five minutes, first thing, until things stabilize."',
-          action: () => dp2A()
-        },
-        {
-          text: '"Before I suggest anything — is there something making this harder that I\'m not seeing?"',
-          action: () => dp2B()
-        }
-      ]);
-    }
-
-    // DP2 Choice A — clumsy (prescribes without asking)
-    async function dp2A() {
-      state.dp2 = 'A';
-      state.path = 'clumsy';
-      clearChoices();
-      await addMessage('jordan', 'I\'ve got an idea. What if we set up a quick daily check-in just for your tickets? Five minutes, first thing, until things stabilize.', 0);
-      await showTyping(600);
-      await addMessage('priya', 'Sure. If you think that would help.', 1000);
-      await addMessage('system', 'Priya agreed. The daily check-ins started. The incomplete tickets continued.', 800);
-      await addMessage('system', 'Jordan was solving a problem he didn\'t understand yet. The check-ins tracked the symptom. The cause was never found.', 800);
-      setTimeout(() => goToDebrief(), 1500);
-    }
-
-    // DP2 Choice B — effective (asks first)
-    async function dp2B() {
-      state.dp2 = 'B';
-      state.onaaUsed.push('A1');
-      clearChoices();
-      await addMessage('jordan', 'Before I suggest anything — is there something making this harder that I\'m not seeing?', 0);
-      await showTyping(1000);
-      await addMessage('priya', '...', 1400);
-      await showTyping(400);
-      await addMessage('priya', 'Honestly?', 2000);
-      await showTyping(400);
-      await addMessage('priya', 'I\'ve been covering Karan\'s tickets since he went on leave. Three weeks. No one redistributed his work, so I just started picking it up. I didn\'t want to make it a thing.', 2600);
-      await showTyping(400);
-      await addMessage('priya', 'I probably should have said something sooner.', 1800);
-      setProgress(3, 3);
-      showDP3();
-    }
-
-    // DP3
-    function showDP3() {
-      showChoices('Priya just told you she\'s been covering for an absent colleague for three weeks. No one asked her to. No one reassigned the work.\n\nHow do you close?', [
-        {
-          text: '"That\'s something I should have caught. Here\'s what I\'d like to do: I\'ll talk to the team lead today about redistributing Karan\'s tickets. Can you send me a list of what you\'ve been carrying by end of day? Let\'s check in Friday to make sure it\'s landed."',
-          action: () => dp3A()
-        },
-        {
-          text: '"I\'ll handle this. I\'ll talk to the team lead and get Karan\'s work redistributed today. You shouldn\'t have had to carry this alone."',
-          action: () => dp3B()
-        },
-        {
-          text: '"That\'s really helpful to know. Let me think about the best way to handle this, and I\'ll come back to you with a plan."',
-          action: () => dp3C()
-        }
-      ]);
-    }
-
-    // DP3 A — effective (shared ownership)
-    async function dp3A() {
-      state.dp3 = 'A';
-      state.path = 'effective';
-      state.onaaUsed.push('N', 'A2');
-      clearChoices();
-      await addMessage('jordan', 'That\'s something I should have caught. Here\'s what I\'d like to do: I\'ll talk to the team lead today about redistributing Karan\'s tickets. Can you send me a list of what you\'ve been carrying by end of day? Let\'s check in Friday to make sure it\'s landed.', 0);
-      await showTyping(600);
-      await addMessage('priya', 'Yeah. I can do that.', 1000);
-      await showTyping(800);
-      await addMessage('priya', 'Thank you for actually asking.', 1800);
-      await addMessage('system', 'Priya sent the list at 4:47pm. The workload was redistributed the next morning. Her tickets were complete by end of the following sprint.', 1400);
-      setProgress(3, 3);
-      document.getElementById('sim-progress-label').textContent = 'Complete';
-      setTimeout(() => goToDebrief(), 2000);
-    }
-
-    // DP3 B — almost: took over
-    async function dp3B() {
-      state.dp3 = 'B';
-      state.path = 'almostB';
-      state.onaaUsed.push('N');
-      clearChoices();
-      await addMessage('jordan', 'I\'ll handle this. I\'ll talk to the team lead and get Karan\'s work redistributed today. You shouldn\'t have had to carry this alone.', 0);
-      await showTyping(600);
-      await addMessage('priya', 'Oh. Okay. Thanks, Jordan.', 1000);
-      await addMessage('system', 'The workload was redistributed. Priya\'s tickets improved. But she left the room without an action of her own. Jordan solved it for her, not with her. Next time something goes wrong, she\'ll wait for Jordan to fix it.', 1000);
-      setTimeout(() => goToDebrief(), 2000);
-    }
-
-    // DP3 C — almost: deferred
-    async function dp3C() {
-      state.dp3 = 'C';
-      state.path = 'almostC';
-      state.onaaUsed.push('N');
-      clearChoices();
-      await addMessage('jordan', 'That\'s really helpful to know. Let me think about the best way to handle this, and I\'ll come back to you with a plan.', 0);
-      await showTyping(600);
-      await addMessage('priya', 'Sure. Okay.', 1000);
-      await addMessage('system', 'Priya had just told Jordan something she\'d been hiding for three weeks. The response was "let me think about it." She didn\'t bring it up again.', 1200);
-      setTimeout(() => goToDebrief(), 2000);
-    }
-
-    // ── Go to debrief ──
-    function goToDebrief() {
-      NBTracker.simCompleted(state.path, state.onaaUsed);
-
-      const map = {
-        avoid: 'screen-avoid',
-        clumsy: 'screen-clumsy',
-        effective: 'screen-effective',
-        almostB: 'screen-almostA',
-        almostC: 'screen-almostB'
-      };
-      const screenId = map[state.path];
-
-      // Render ONAA pills
-      const pillsId = {
-        avoid: 'avoid-pills', clumsy: 'clumsy-pills',
-        effective: 'eff-pills', almostB: 'almA-pills', almostC: 'almB-pills'
-      }[state.path];
-      renderPills(pillsId, state.onaaUsed);
-
-      showScreen(screenId);
-
-      // Avoid path: stagger timeline items
-      if (state.path === 'avoid') {
-        document.querySelectorAll('#avoid-timeline .tl-item').forEach(item => {
-          const d = parseInt(item.dataset.delay);
-          setTimeout(() => item.classList.add('visible'), 400 + d);
-        });
-        // Reveal rest after timeline
-        setTimeout(() => {
-          ['avoid-reveal', 'avoid-quote', 'avoid-reflect', 'avoid-pills', 'avoid-cta'].forEach((id, i) => {
-            setTimeout(() => {
-              const el = document.getElementById(id);
-              if (el) reveal(el);
-            }, i * 400);
-          });
-        }, 7000);
+    // ── Move on ──────────────────────────────────────────────────────
+    function nextStep() {
+      if (step < STEPS.length - 1) {
+        step++;
+        renderStep();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else {
+        showResult();
       }
     }
 
-    // ── Setup screen ──
+    // ── Result ───────────────────────────────────────────────────────
+    function showResult() {
+      const scored = STEPS.map((s, i) => ({ s, i })).filter(x => x.s.type !== 'reflect');
+      const score  = scored.filter(x => results[x.i]).length;
+      const passed = score >= PASS_MARK;
+
+      progress.innerHTML = 'Result<span class="ps-dots" aria-hidden="true">' +
+        scored.map(() => '<i class="is-active"></i>').join('') + '</span>';
+
+      card.innerHTML =
+        '<div class="qz-score">' + score + ' / ' + scored.length + '</div>' +
+        '<p class="qz-verdict qz-verdict--' + (passed ? 'pass' : 'retry') + '"><span>' +
+          (passed ? 'Passed' : 'Not yet') + '</span></p>' +
+        '<p class="qz-result-note">' + (passed
+          ? 'You can tell what avoidance looks like from what\'s driving it, and where the cost lands when nobody says anything.'
+          : 'Close. Retake the check, or go back to the three patterns in Module 2 and try again after.') + '</p>' +
+        '<ul class="qz-list">' +
+          scored.map(x =>
+            '<li><span class="qz-mark qz-mark--' + (results[x.i] ? 'correct">✓' : 'wrong">✕') + '</span>' + x.s.lo + '</li>'
+          ).join('') +
+        '</ul>' +
+        '<div class="qz-close">' +
+          '<p class="qz-close-title">That\'s the end of the course.</p>' +
+          '<p>You can name what avoidance looks like, what\'s driving it underneath, and what it costs while nobody says anything. Most managers are never taught any of that.</p>' +
+          '<p>The conversation that kept coming to mind while you read this is still waiting. Now you know what the silence is costing.</p>' +
+        '</div>' +
+        '<div class="qz-actions">' +
+          '<button class="qz-btn qz-btn--ghost" onclick="retake()">Retake the check</button>' +
+        '</div>';
+
+      nextBtn.style.display = 'none';
+    }
+
+    function retake() {
+      step = 0;
+      results.length = 0;
+      nextBtn.style.display = '';
+      renderStep();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ── Navigation (single screen, kept for the shared sidebar) ──────
+    function goToScreen(idx) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById('screen-' + idx).classList.add('active');
+      reached.add(idx);
+      document.getElementById('nav-counter').textContent = NAV_OFFSETS[idx] + ' / 12';
+      setSidebarState(idx);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function setSidebarState(activeIdx) {
+      for (let i = 0; i < TOTAL_SCREENS; i++) {
+        const el = document.getElementById('sitem-' + i);
+        if (!el) continue;
+        const num = el.querySelector('.sidebar-step-num');
+        el.classList.remove('sidebar-item--active', 'sidebar-item--done');
+        if (i === activeIdx) {
+          el.classList.add('sidebar-item--active');
+          num.textContent = i + 1;
+        } else if (reached.has(i)) {
+          el.classList.add('sidebar-item--done');
+          num.textContent = '✓';
+          el.onclick = () => goToScreen(i);
+        }
+      }
+    }
+
+    // ── Sidebar collapsible toggle ──────────────────────────────────
+    function toggleSidebarSection(toggle) {
+      const screens = toggle.nextElementSibling;
+      if (!screens || !screens.classList.contains('sidebar-collapsible')) return;
+      screens.classList.toggle('sidebar-collapsible--open');
+      toggle.classList.toggle('sidebar-module-toggle--open');
+    }
+
+    // ── Boot ─────────────────────────────────────────────────────────
     document.addEventListener('DOMContentLoaded', () => {
-      revealScreen('screen-setup', 200);
-    });
-
-    document.getElementById('btn-open-sim').addEventListener('click', startSim);
-
-    // ── Continue buttons → Stage 5 ──
-    ['btn-continue-avoid', 'btn-continue-clumsy', 'btn-continue-eff', 'btn-continue-almA', 'btn-continue-almB'].forEach(id => {
-      document.getElementById(id).addEventListener('click', () => {
-        window.location.href = 'stage5.html?path=' + state.path;
+      document.querySelectorAll('#screen-0 .fade-up').forEach((el, i) => {
+        setTimeout(() => el.classList.add('visible'), 120 + i * 120);
       });
+      setSidebarState(0);
+      renderStep();
     });
+
   </script>
 
 </body>

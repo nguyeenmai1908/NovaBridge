@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stage 4 — Practice · NovaBridge</title>
+  <link rel="stylesheet" href="tokens.css">
+  <style>
+    .stage-page { position: relative; z-index: 1; padding: var(--space-8) var(--space-4); }
+    .stage-container { max-width: var(--max-width-course); margin: 0 auto; width: 100%; }
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    /* ── Setup screens ── */
+    .setup-narration p {
+      font-size: var(--text-base); color: var(--text-secondary);
+      line-height: var(--leading-loose); margin-bottom: var(--space-4);
+    }
+    .setup-narration .emphasis {
+      color: var(--text-primary); font-weight: var(--weight-medium);
+    }
+
+    /* ── Slack notification ── */
+    .slack-msg {
+      background: var(--bg-glass); border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg); padding: var(--space-4) var(--space-5);
+      margin: var(--space-6) 0;
+    }
+    .slack-from {
+      font-size: var(--text-xs); font-weight: var(--weight-semi);
+      color: var(--text-tertiary); margin-bottom: var(--space-2);
+      text-transform: uppercase; letter-spacing: 0.06em;
+    }
+    .slack-text {
+      font-size: var(--text-sm); color: var(--text-secondary);
+      line-height: var(--leading-base); font-style: italic;
+    }
+
+    /* ── Sim wrapper ── */
+    .sim-wrap {
+      border-radius: var(--radius-xl); overflow: hidden;
+      border: 1px solid var(--border-subtle); background: rgba(255,255,255,0.02);
+    }
+
+    /* ── Back / action buttons ── */
+    .btn-back {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: none; border: none; font-family: var(--font);
+      font-size: var(--text-sm); color: var(--text-tertiary);
+      cursor: pointer; padding: 4px 0; margin-bottom: var(--space-4);
+      transition: color var(--transition-fast); text-decoration: none;
+    }
+    .btn-back:hover { color: var(--text-secondary); }
+    .btn-back svg {
+      width: 16px; height: 16px; stroke: currentColor;
+      fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+    }
+    .stage-action { text-align: center; padding-top: var(--space-6); }
+
+    /* ── Debrief screens ── */
+    .debrief-text {
+      font-size: var(--text-base); color: var(--text-secondary);
+      line-height: var(--leading-loose); margin-bottom: var(--space-4);
+    }
+    .debrief-emphasis {
+      color: var(--text-primary); font-weight: var(--weight-medium);
+    }
+    .debrief-quote {
+      font-size: var(--text-lg); color: var(--text-primary);
+      font-style: italic; text-align: center;
+      padding: var(--space-6) 0; font-weight: var(--weight-medium);
+    }
+
+    /* ── Timeline (avoid path) ── */
+    .timeline { margin: var(--space-6) 0; }
+    .tl-item {
+      padding: var(--space-4) var(--space-5);
+      border-left: 2px solid var(--border-default);
+      margin-left: var(--space-3);
+      margin-bottom: var(--space-4);
+      opacity: 0; transform: translateY(8px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+    .tl-item.visible { opacity: 1; transform: translateY(0); }
+    .tl-day {
+      font-size: var(--text-xs); font-weight: var(--weight-semi);
+      color: var(--rose-300); text-transform: uppercase;
+      letter-spacing: 0.06em; margin-bottom: var(--space-2);
+    }
+    .tl-text {
+      font-size: var(--text-sm); color: var(--text-secondary);
+      line-height: var(--leading-base);
+    }
+    .tl-text em { color: var(--text-primary); font-style: normal; font-weight: var(--weight-medium); }
+
+    /* ── ONAA pills ── */
+    .onaa-pills {
+      display: flex; flex-wrap: wrap; justify-content: center;
+      gap: var(--space-2); margin: var(--space-5) 0;
+    }
+
+    /* ── AI coaching card ── */
+    .coaching-placeholder {
+      text-align: center; padding: var(--space-6) 0;
+    }
+    .coaching-placeholder p {
+      font-size: var(--text-sm); color: var(--text-tertiary);
+      font-style: italic;
+    }
+
+    /* ── Fade ── */
+    .fade-up {
+      opacity: 0; transform: translateY(12px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .fade-up.visible { opacity: 1; transform: translateY(0); }
+
+    @media (max-width: 480px) {
+      .stage-page { padding: var(--space-5) var(--space-4); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bg-orbs" data-stage="4">
+    <div class="orb orb-1"></div><div class="orb orb-2"></div><div class="orb orb-3"></div>
+  </div>
+
+  <nav class="nav">
+    <a href="index.html" class="nav-brand nav-link" style="font-size:var(--text-sm);font-weight:var(--weight-semi);color:var(--text-primary);text-decoration:none;">&larr; Course overview</a>
+    <div class="progress-nav">
+      <div class="prog-dot prog-dot--done">1</div><div class="prog-line"></div>
+      <div class="prog-dot prog-dot--done">2</div><div class="prog-line"></div>
+      <div class="prog-dot prog-dot--done">3</div><div class="prog-line"></div>
+      <div class="prog-dot prog-dot--active">4</div><div class="prog-line"></div>
+      <div class="prog-dot prog-dot--upcoming">5</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:var(--space-4);">
+      <div class="text-toggle">
+        <button class="text-toggle-btn text-toggle-btn--sm" data-size="text-sm">A</button>
+        <button class="text-toggle-btn text-toggle-btn--md" data-size="text-md">A</button>
+        <button class="text-toggle-btn text-toggle-btn--lg" data-size="text-lg">A</button>
+      </div>
+      <a href="job-aid.html" class="nav-link">Job aid</a>
+    </div>
+  </nav>
+
+  <!-- SVG character definitions -->
+  <svg xmlns="http://www.w3.org/2000/svg" style="display:none;">
+    <defs>
+      <!-- Jordan — indigo/violet, short neat hair, clean-shaven, confident but new to management -->
+      <symbol id="icon-jordan" viewBox="0 0 72 72">
+        <circle cx="36" cy="36" r="36" fill="rgba(99,102,241,0.10)"/>
+        <circle cx="36" cy="36" r="33" fill="none" stroke="rgba(99,102,241,0.25)" stroke-width="1"/>
+        <!-- Hair -->
+        <path d="M22 27 Q23 15 36 14 Q49 15 50 27 Q50 23 47 20 Q43 17 36 16 Q29 17 25 20 Q22 23 22 27Z" fill="#1e1535"/>
+        <ellipse cx="36" cy="23" rx="15" ry="8" fill="#1e1535"/>
+        <!-- Neck -->
+        <rect x="31" y="44" width="10" height="6" rx="3" fill="#c49a6c"/>
+        <!-- Shoulders / hoodie -->
+        <path d="M20 54 Q25 48 36 48 Q47 48 52 54 Q54 58 54 62 L18 62 Q18 58 20 54Z" fill="rgba(99,102,241,0.40)"/>
+        <!-- Hoodie collar -->
+        <path d="M30 50 Q36 54 42 50" stroke="rgba(79,70,229,0.5)" stroke-width="1" fill="none"/>
+        <!-- Face -->
+        <ellipse cx="36" cy="33" rx="14" ry="14.5" fill="#c49a6c"/>
+        <!-- Hair overlay -->
+        <path d="M22 27 Q23 18 36 17 Q49 18 50 27 L50 24 Q49 16 36 15 Q23 16 22 24Z" fill="#1e1535"/>
+        <!-- Eyebrows -->
+        <path d="M27 29 L33 28" stroke="#1e1535" stroke-width="1.3" stroke-linecap="round"/>
+        <path d="M39 28 L45 29" stroke="#1e1535" stroke-width="1.3" stroke-linecap="round"/>
+        <!-- Eyes -->
+        <ellipse cx="30" cy="32.5" rx="2.2" ry="2.2" fill="#1e1535">
+          <animate attributeName="ry" values="2.2;0.3;2.2" dur="4.5s" repeatCount="indefinite" begin="2.5s"/>
+        </ellipse>
+        <ellipse cx="42" cy="32.5" rx="2.2" ry="2.2" fill="#1e1535">
+          <animate attributeName="ry" values="2.2;0.3;2.2" dur="4.5s" repeatCount="indefinite" begin="2.5s"/>
+        </ellipse>
+        <!-- Eye shine -->
+        <circle cx="31" cy="31.5" r="0.8" fill="rgba(255,255,255,0.5)"/>
+        <circle cx="43" cy="31.5" r="0.8" fill="rgba(255,255,255,0.5)"/>
+        <!-- Slight smile -->
+        <path d="M33 39 Q36 40.5 39 39" stroke="#9a7550" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+      </symbol>
+
+      <!-- Priya — rose/pink, long dark hair, warm expression -->
+      <symbol id="icon-priya" viewBox="0 0 72 72">
+        <circle cx="36" cy="36" r="36" fill="rgba(236,72,153,0.10)"/>
+        <circle cx="36" cy="36" r="33" fill="none" stroke="rgba(236,72,153,0.25)" stroke-width="1"/>
+        <!-- Hair back (long, dark) -->
+        <ellipse cx="36" cy="30" rx="18" ry="19" fill="#1a0e14"/>
+        <!-- Hair sides flowing down -->
+        <path d="M18 30 Q16 44 20 54" stroke="#1a0e14" stroke-width="6" fill="none" stroke-linecap="round"/>
+        <path d="M54 30 Q56 44 52 54" stroke="#1a0e14" stroke-width="6" fill="none" stroke-linecap="round"/>
+        <!-- Neck -->
+        <rect x="31" y="43" width="10" height="6" rx="3" fill="#8d6840"/>
+        <!-- Shoulders -->
+        <path d="M22 54 Q26 48 36 48 Q46 48 50 54 Q52 58 52 62 L20 62 Q20 58 22 54Z" fill="rgba(236,72,153,0.30)"/>
+        <!-- Face -->
+        <ellipse cx="36" cy="33" rx="13.5" ry="14" fill="#8d6840"/>
+        <!-- Hair front (parted) -->
+        <path d="M23 27 Q25 17 36 16 Q47 17 49 27 Q47 23 43 21 Q39 23 36 20 Q33 23 29 21 Q25 23 23 27Z" fill="#1a0e14"/>
+        <!-- Bindi -->
+        <circle cx="36" cy="24.5" r="1.2" fill="rgba(236,72,153,0.6)"/>
+        <!-- Eyes -->
+        <ellipse cx="30.5" cy="33" rx="2" ry="2.3" fill="#1a0e06">
+          <animate attributeName="ry" values="2.3;0.3;2.3" dur="3.8s" repeatCount="indefinite" begin="1.8s"/>
+        </ellipse>
+        <ellipse cx="41.5" cy="33" rx="2" ry="2.3" fill="#1a0e06">
+          <animate attributeName="ry" values="2.3;0.3;2.3" dur="3.8s" repeatCount="indefinite" begin="1.8s"/>
+        </ellipse>
+        <!-- Eye shine -->
+        <circle cx="31.5" cy="32" r="0.8" fill="rgba(255,255,255,0.55)"/>
+        <circle cx="42.5" cy="32" r="0.8" fill="rgba(255,255,255,0.55)"/>
+        <!-- Eyelashes hint -->
+        <path d="M28 31 L29 30.5" stroke="#1a0e06" stroke-width="0.6" stroke-linecap="round"/>
+        <path d="M44 30.5 L43 31" stroke="#1a0e06" stroke-width="0.6" stroke-linecap="round"/>
+        <!-- Warm smile -->
+        <path d="M32 38.5 Q36 41.5 40 38.5" stroke="#6b4e30" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+        <!-- Slight blush -->
+        <circle cx="27" cy="36" r="2.5" fill="rgba(236,72,153,0.12)"/>
+        <circle cx="45" cy="36" r="2.5" fill="rgba(236,72,153,0.12)"/>
+        <!-- Earrings -->
+        <circle cx="20" cy="36" r="1.2" fill="rgba(251,191,36,0.5)"/>
+        <circle cx="52" cy="36" r="1.2" fill="rgba(251,191,36,0.5)"/>
+      </symbol>
+    </defs>
+  </svg>
+
+  <main class="stage-page">
+    <div class="stage-container">
+
+      <!-- ============================================
+           SCREEN 4.1 — Setup
+           ============================================ -->
+      <div class="screen active" id="screen-setup">
+        <a href="stage3.html" class="btn-back">
+          <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+          Back to Stage 3
+        </a>
+
+        <h1 class="fade-up" style="font-size:var(--text-2xl);font-weight:var(--weight-semi);color:var(--text-primary);margin-bottom:var(--space-2);margin-top:var(--space-4);">The 1:1 with Priya</h1>
+
+        <p class="fade-up" style="font-size:var(--text-base);color:var(--text-secondary);margin-bottom:var(--space-6);max-width:100%;">You'll play as Jordan, a new engineering manager. The choices you make shape how the conversation goes. There are no wrong endings, only different ones.</p>
+
+        <div style="display:flex;justify-content:center;gap:var(--space-8);padding:var(--space-4) 0;" class="fade-up" id="setup-chars">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:var(--space-2);">
+            <svg width="72" height="72"><use href="#icon-jordan"/></svg>
+            <span style="font-size:var(--text-2xs);font-weight:var(--weight-semi);letter-spacing:0.06em;text-transform:uppercase;color:var(--indigo-300);">Jordan (you)</span>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:var(--space-2);">
+            <svg width="72" height="72"><use href="#icon-priya"/></svg>
+            <span style="font-size:var(--text-2xs);font-weight:var(--weight-semi);letter-spacing:0.06em;text-transform:uppercase;color:var(--rose-300);">Priya</span>
+          </div>
+        </div>
+
+        <div class="setup-narration fade-up" id="setup-n1">
+          <p class="emphasis">You are Jordan.</p>
+          <p>You got promoted to engineering manager eight months ago. Before that, you were the person everyone came to when something broke. Five years of being the best individual contributor on the team.</p>
+          <p>Nobody questioned the promotion. But nobody taught you how to manage people either.</p>
+        </div>
+
+        <div class="setup-narration fade-up" id="setup-n1b">
+          <p class="emphasis">Priya reports to you.</p>
+          <p>She's a mid-level developer. Smart, quiet, the kind of person who picks up other people's loose ends without being asked. She was on the team before you became her manager.</p>
+          <p>Her sprint tickets have been incomplete three cycles in a row. You've noticed. You haven't said anything.</p>
+        </div>
+
+        <div class="slack-msg fade-up" id="setup-slack">
+          <div class="slack-from">From: Alex Chen (your manager)</div>
+          <div class="slack-text">"Hey, can we talk about Priya's output? The team lead flagged it again. Just want to make sure you're across it."</div>
+        </div>
+
+        <div class="setup-narration fade-up" id="setup-n2">
+          <p class="emphasis">Your 1:1 with Priya is in 30 minutes.</p>
+          <p>You've been telling yourself you'd bring it up when the time felt right. The time never felt right. Now your manager is asking.</p>
+        </div>
+
+        <div class="stage-action fade-up" id="setup-cta">
+          <button class="btn btn--primary" id="btn-open-sim">
+            Open the 1:1 &rarr;
+            <span class="btn-pulse-ring"></span>
+          </button>
+        </div>
+      </div>
+
+      <!-- ============================================
+           SCREEN 4.2 — Simulation
+           ============================================ -->
+      <div class="screen" id="screen-sim">
+        <div class="sim-wrap">
+          <!-- Header -->
+          <div class="sim-header">
+            <svg width="32" height="32" style="flex-shrink:0;"><use href="#icon-priya"/></svg>
+            <div>
+              <div style="font-size:var(--text-sm);font-weight:var(--weight-medium);color:var(--text-primary);">Priya Rajan</div>
+              <div style="font-size:var(--text-xs);color:var(--text-tertiary);">1:1 &middot; Thursday 2:00pm</div>
+            </div>
+            <div style="margin-left:auto;">
+              <div class="sim-progress">
+                <div class="sim-progress-bar"><div class="sim-progress-fill" id="sim-progress-fill" style="width:33%"></div></div>
+                <div class="sim-progress-label" id="sim-progress-label">Step 1 of 3</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Chat area -->
+          <div class="chat-area" id="chat-area">
+            <!-- Messages injected by JS -->
+          </div>
+
+          <!-- Choice area -->
+          <div class="choice-area" id="choice-area">
+            <!-- Choices injected by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- ============================================
+           DEBRIEF SCREENS — one per path
+           ============================================ -->
+
+      <!-- Avoid path -->
+      <div class="screen" id="screen-avoid">
+        <div class="chat-sys fade-up" id="avoid-sys" style="font-size:var(--text-sm);padding:var(--space-4) 0;">The conversation you didn't have.</div>
+
+        <div class="timeline" id="avoid-timeline">
+          <div class="tl-item" data-delay="0">
+            <div class="tl-day">Day 3</div>
+            <div class="tl-text">Your manager follows up: <em>"Did you get a chance to talk to Priya? Team lead flagged two more incomplete tickets this sprint."</em><br>You reply: "Yeah, we chatted. Keeping an eye on it."</div>
+          </div>
+          <div class="tl-item" data-delay="1500">
+            <div class="tl-day">Day 7</div>
+            <div class="tl-text">Priya misses a client-facing deliverable. The account manager escalates directly to your manager. <em>You find out in a Slack channel with six other people in it.</em></div>
+          </div>
+          <div class="tl-item" data-delay="3000">
+            <div class="tl-day">Day 10</div>
+            <div class="tl-text">Your manager calls a meeting. Tone: measured, not hostile. Message: <em>"I need you to have a documented conversation with Priya this week. If this continues, HR will be involved."</em><br>The conversation you avoided for two weeks now has to happen under formal pressure.</div>
+          </div>
+          <div class="tl-item" data-delay="4500">
+            <div class="tl-day">Day 14</div>
+            <div class="tl-text">You have the conversation. It is reactive, defensive, and short. <em>Priya didn't know she was being documented. She feels ambushed.</em><br>After the meeting she sits at her desk for a while. Then she opens LinkedIn.</div>
+          </div>
+        </div>
+
+        <div class="debrief-text fade-up" id="avoid-reveal" style="text-align:center;margin-top:var(--space-6);">
+          <p>Priya had been covering for a colleague on leave for six weeks.<br>She never told anyone &mdash; because no one asked.</p>
+          <p>Six weeks after this conversation, she accepted an offer at another company.</p>
+          <p class="debrief-emphasis">Jordan never found out what was actually going on.</p>
+        </div>
+
+        <div class="typo-moment fade-up" id="avoid-quote">
+          <div class="typo-moment-text typo-moment-text--rose">"I kept waiting for someone to ask."</div>
+        </div>
+
+        <div id="avoid-reflect" class="fade-up">
+          <div class="reflect-card">
+            <div class="reflect-label">Before you see your coaching note</div>
+            <p style="font-size:var(--text-base);color:var(--text-primary);line-height:var(--leading-base);margin-bottom:var(--space-3);">Think about the conversation you had in mind at the start of this course. What do you now understand about why you've been avoiding it?</p>
+            <textarea class="reflect-input" id="reflect-avoid" placeholder="Take a moment. This is just for you." rows="3"></textarea>
+            <p style="font-size:var(--text-xs);color:var(--text-tertiary);margin-top:var(--space-2);">Nothing you write here is submitted or scored.</p>
+          </div>
+        </div>
+
+        <div class="onaa-pills fade-up" id="avoid-pills"></div>
+
+        <div class="stage-action fade-up" id="avoid-cta">
+          <button class="btn btn--ghost" onclick="location.reload()">Try again &nearr;</button>
+          <button class="btn btn--primary" id="btn-continue-avoid" style="margin-left:var(--space-2);">Show me what would have helped &rarr;</button>
+        </div>
+      </div>
+
+      <!-- Clumsy path -->
+      <div class="screen" id="screen-clumsy">
+        <div class="debrief-text fade-up" id="clumsy-sys">
+          <p>Priya left the 1:1. The sprint check-ins started. The tickets continued to be incomplete.</p>
+          <p>Six weeks later, the issue escalated to HR anyway &mdash; not because Priya wasn't trying, but because the real problem was never found.</p>
+        </div>
+
+        <div class="debrief-text fade-up" id="clumsy-reveal" style="text-align:center;">
+          <p class="debrief-emphasis">Priya had been covering for a colleague on leave for six weeks.</p>
+          <p>A planning check-in didn't fix a capacity problem.</p>
+          <p class="debrief-emphasis">The question you didn't ask was the only thing that would have.</p>
+        </div>
+
+        <div id="clumsy-reflect" class="fade-up">
+          <div class="reflect-card">
+            <div class="reflect-label">Private reflection</div>
+            <p style="font-size:var(--text-base);color:var(--text-primary);line-height:var(--leading-base);margin-bottom:var(--space-3);">What do you now understand about why you went to a solution before asking a question?</p>
+            <textarea class="reflect-input" id="reflect-clumsy" placeholder="Take a moment. This is just for you." rows="3"></textarea>
+          </div>
+        </div>
+
+        <div class="onaa-pills fade-up" id="clumsy-pills"></div>
+
+        <div class="stage-action fade-up" id="clumsy-cta">
+          <button class="btn btn--ghost" onclick="location.reload()">Try again &nearr;</button>
+          <button class="btn btn--primary" id="btn-continue-clumsy" style="margin-left:var(--space-2);">Show me what would have helped &rarr;</button>
+        </div>
+      </div>
+
+      <!-- Effective path -->
+      <div class="screen" id="screen-effective">
+        <div class="debrief-text fade-up" id="eff-text">
+          <p class="debrief-emphasis">You asked.</p>
+          <p>That's the thing most managers in Jordan's position don't do &mdash; not because they're bad managers, but because asking feels slower than solving.</p>
+          <p>You asked anyway. And the conversation became something neither of you expected it to be.</p>
+        </div>
+
+        <div id="eff-reflect" class="fade-up">
+          <div class="reflect-card">
+            <div class="reflect-label">Private reflection</div>
+            <p style="font-size:var(--text-base);color:var(--text-primary);line-height:var(--leading-base);margin-bottom:var(--space-3);">Think about the conversation you came in with. What's one thing you now know about it that you didn't know at the start?</p>
+            <textarea class="reflect-input" id="reflect-eff" placeholder="Take a moment. This is just for you." rows="3"></textarea>
+          </div>
+        </div>
+
+        <div class="onaa-pills fade-up" id="eff-pills"></div>
+
+        <div class="stage-action fade-up" id="eff-cta">
+          <button class="btn btn--primary" id="btn-continue-eff">Continue &rarr;<span class="btn-pulse-ring"></span></button>
+        </div>
+      </div>
+
+      <!-- Almost A (took over) -->
+      <div class="screen" id="screen-almostA">
+        <div class="debrief-text fade-up" id="almA-text">
+          <p class="debrief-emphasis">You found the real problem. That's the hardest part &mdash; and you got there.</p>
+          <p>But the way you closed removed something important: Priya's role in the solution.</p>
+          <p>When a manager solves a problem for someone rather than with them, the person learns to wait for the manager to solve the next one.</p>
+        </div>
+
+        <div id="almA-reflect" class="fade-up">
+          <div class="reflect-card">
+            <div class="reflect-label">Private reflection</div>
+            <p style="font-size:var(--text-base);color:var(--text-primary);line-height:var(--leading-base);margin-bottom:var(--space-3);">What would "figuring it out together" have looked like in that specific moment?</p>
+            <textarea class="reflect-input" placeholder="Take a moment." rows="3"></textarea>
+          </div>
+        </div>
+
+        <div class="onaa-pills fade-up" id="almA-pills"></div>
+
+        <div class="stage-action fade-up" id="almA-cta">
+          <button class="btn btn--ghost" onclick="location.reload()">Try again &nearr;</button>
+          <button class="btn btn--primary" id="btn-continue-almA" style="margin-left:var(--space-2);">Show me what would have helped &rarr;</button>
+        </div>
+      </div>
+
+      <!-- Almost B (deferred) -->
+      <div class="screen" id="screen-almostB">
+        <div class="debrief-text fade-up" id="almB-text">
+          <p class="debrief-emphasis">You asked the right question. Priya told you the real thing.</p>
+          <p>And then the moment closed.</p>
+          <p>A performance review date is three months away. What Priya needed was to know that what she'd said had mattered &mdash; right now, today, in this conversation.</p>
+        </div>
+
+        <div id="almB-reflect" class="fade-up">
+          <div class="reflect-card">
+            <div class="reflect-label">Private reflection</div>
+            <p style="font-size:var(--text-base);color:var(--text-primary);line-height:var(--leading-base);margin-bottom:var(--space-3);">What would a specific next step have looked like &mdash; something that showed Priya her honesty had been heard?</p>
+            <textarea class="reflect-input" placeholder="Take a moment." rows="3"></textarea>
+          </div>
+        </div>
+
+        <div class="onaa-pills fade-up" id="almB-pills"></div>
+
+        <div class="stage-action fade-up" id="almB-cta">
+          <button class="btn btn--ghost" onclick="location.reload()">Try again &nearr;</button>
+          <button class="btn btn--primary" id="btn-continue-almB" style="margin-left:var(--space-2);">Show me what would have helped &rarr;</button>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <script src="text-size.js"></script>
+  <script src="tracker.js"></script>
+  <script src="onaa-ref.js"></script>
+  <script>
+    NBTracker.stageReached(4);
+
+    // ── State ──
+    const state = { dp1: '', dp2: '', dp3: '', onaaUsed: [], path: '' };
+
+    // ── Helpers ──
+    function reveal(el) { if (typeof el === 'string') el = document.getElementById(el); el.classList.add('visible'); }
+
+    function revealScreen(id, delay) {
+      const screen = document.getElementById(id);
+      screen.querySelectorAll('.fade-up').forEach((el, i) => {
+        setTimeout(() => reveal(el), delay + i * 200);
+      });
+    }
+
+    function showScreen(id) {
+      document.querySelectorAll('.screen.active').forEach(s => s.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      setTimeout(() => revealScreen(id, 150), 100);
+    }
+
+    // ── Chat helpers ──
+    const chatArea = document.getElementById('chat-area');
+    const choiceArea = document.getElementById('choice-area');
+
+    function addMessage(type, text, delay) {
+      return new Promise(resolve => {
+        setTimeout(() => {
+          // Remove typing indicator if exists
+          const typing = chatArea.querySelector('.typing-indicator');
+          if (typing) typing.remove();
+
+          if (type === 'system') {
+            const div = document.createElement('div');
+            div.className = 'chat-sys';
+            div.textContent = text;
+            chatArea.appendChild(div);
+          } else {
+            const row = document.createElement('div');
+            row.className = 'chat-row' + (type === 'jordan' ? ' chat-row--right' : '');
+            const avatarSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            avatarSvg.setAttribute('width', '28');
+            avatarSvg.setAttribute('height', '28');
+            avatarSvg.style.flexShrink = '0';
+            const use = document.createElementNS('http://www.w3.org/2000/svg', 'use');
+            use.setAttributeNS('http://www.w3.org/1999/xlink', 'href', type === 'priya' ? '#icon-priya' : '#icon-jordan');
+            avatarSvg.appendChild(use);
+            const bubble = document.createElement('div');
+            bubble.className = 'bubble bubble--' + type;
+            bubble.textContent = text;
+            row.appendChild(avatarSvg);
+            row.appendChild(bubble);
+            chatArea.appendChild(row);
+          }
+          chatArea.scrollTop = chatArea.scrollHeight;
+          resolve();
+        }, delay);
+      });
+    }
+
+    function showTyping(delay) {
+      return new Promise(resolve => {
+        setTimeout(() => {
+          const indicator = document.createElement('div');
+          indicator.className = 'typing-indicator';
+          indicator.innerHTML = '<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>';
+          chatArea.appendChild(indicator);
+          chatArea.scrollTop = chatArea.scrollHeight;
+          resolve();
+        }, delay);
+      });
+    }
+
+    function setProgress(step, total) {
+      document.getElementById('sim-progress-fill').style.width = (step / total * 100) + '%';
+      document.getElementById('sim-progress-label').textContent = step === total ? 'Complete' : 'Step ' + step + ' of ' + total;
+    }
+
+    function showChoices(label, choices) {
+      choiceArea.innerHTML = '';
+      const lbl = document.createElement('div');
+      lbl.className = 'choice-label';
+      lbl.textContent = label;
+      choiceArea.appendChild(lbl);
+
+      choices.forEach(c => {
+        const btn = document.createElement('button');
+        btn.className = 'choice-btn';
+        btn.textContent = c.text;
+        btn.addEventListener('click', () => {
+          // Visual feedback
+          choiceArea.querySelectorAll('.choice-btn').forEach(b => {
+            if (b === btn) b.classList.add('choice-btn--selected');
+            else b.classList.add('choice-btn--faded');
+          });
+          setTimeout(() => c.action(), 400);
+        });
+        choiceArea.appendChild(btn);
+      });
+    }
+
+    function clearChoices() { choiceArea.innerHTML = ''; }
+
+    function renderPills(containerId, used) {
+      const labels = [
+        { key: 'O', label: 'Observe' },
+        { key: 'A1', label: 'Ask first' },
+        { key: 'N', label: 'Name impact' },
+        { key: 'A2', label: 'Agree next steps' }
+      ];
+      const container = document.getElementById(containerId);
+      labels.forEach(l => {
+        const span = document.createElement('span');
+        span.className = 'tag ' + (used.includes(l.key) ? 'onaa-pill--used' : 'onaa-pill--missed');
+        span.textContent = l.label;
+        container.appendChild(span);
+      });
+    }
+
+    // ── Simulation flow ──
+
+    async function startSim() {
+      showScreen('screen-sim');
+      setProgress(1, 3);
+
+      await addMessage('system', 'Your manager just flagged Priya\'s output. You have 30 minutes.', 300);
+      await showTyping(800);
+      await addMessage('priya', 'Hey! I finished the design review notes you asked for — sent them over this morning. Also, I\'ve been a bit behind on tickets lately. Sorry about that. Anything specific you wanted to cover?', 1000);
+
+      showChoices('How do you open this conversation?', [
+        {
+          text: '"I\'ve noticed your last three sprints had incomplete tickets at end of cycle. I wanted to talk about it directly."',
+          action: () => dp1A()
+        },
+        {
+          text: '"How are you doing? I know things have been busy lately. I wanted to check in before we get into the sprint stuff."',
+          action: () => dp1B()
+        },
+        {
+          text: '"I\'ve been meaning to ask — is everything okay? You seem less engaged than usual."',
+          action: () => dp1C()
+        }
+      ]);
+    }
+
+    // DP1 Choice A — effective (Observe)
+    async function dp1A() {
+      state.dp1 = 'A';
+      state.onaaUsed.push('O');
+      clearChoices();
+      await addMessage('jordan', 'I\'ve noticed your last three sprints had incomplete tickets at end of cycle. I wanted to talk about it directly.', 0);
+      await showTyping(600);
+      await addMessage('priya', 'Yeah. Three sprints. I know. It\'s been a rough few weeks honestly.', 1000);
+      setProgress(2, 3);
+      showDP2();
+    }
+
+    // DP1 Choice B — clumsy (soft opening, buries the issue)
+    async function dp1B() {
+      state.dp1 = 'B';
+      clearChoices();
+      await addMessage('jordan', 'How are you doing? I know things have been busy lately. I wanted to check in before we get into the sprint stuff.', 0);
+      await showTyping(600);
+      await addMessage('priya', 'I\'m fine! Busy, but fine. What sprint stuff did you want to get into?', 1000);
+      await addMessage('system', 'Priya is waiting for you to name the thing. The warm opening felt safe, but it pushed the real conversation further away.', 600);
+      setProgress(2, 3);
+      showDP2();
+    }
+
+    // DP1 Choice C — avoid (judgment disguised as concern)
+    async function dp1C() {
+      state.dp1 = 'C';
+      state.path = 'avoid';
+      clearChoices();
+      await addMessage('jordan', 'I\'ve been meaning to ask — is everything okay? You seem less engaged than usual.', 0);
+      await showTyping(600);
+      await addMessage('priya', '"Less engaged"? I\'ve been here until seven three nights this week. What do you mean, less engaged?', 1200);
+      await addMessage('system', '"Less engaged" is a judgment, not a behavior. Priya can\'t respond to how you feel about her work. She can only defend herself. The conversation is already off track.', 800);
+      await showTyping(400);
+      await addMessage('priya', 'Sorry. I just... I don\'t really know what you\'re asking me.', 1400);
+      await addMessage('system', 'The 1:1 ends at 2:28. Neither of you said what needed to be said.', 1000);
+      setTimeout(() => goToDebrief(), 2000);
+    }
+
+    // DP2
+    function showDP2() {
+      showChoices('Priya acknowledged the issue. What do you do next?', [
+        {
+          text: '"I\'ve got an idea. What if we set up a quick daily check-in just for your tickets? Five minutes, first thing, until things stabilize."',
+          action: () => dp2A()
+        },
+        {
+          text: '"Before I suggest anything — is there something making this harder that I\'m not seeing?"',
+          action: () => dp2B()
+        }
+      ]);
+    }
+
+    // DP2 Choice A — clumsy (prescribes without asking)
+    async function dp2A() {
+      state.dp2 = 'A';
+      state.path = 'clumsy';
+      clearChoices();
+      await addMessage('jordan', 'I\'ve got an idea. What if we set up a quick daily check-in just for your tickets? Five minutes, first thing, until things stabilize.', 0);
+      await showTyping(600);
+      await addMessage('priya', 'Sure. If you think that would help.', 1000);
+      await addMessage('system', 'Priya agreed. The daily check-ins started. The incomplete tickets continued.', 800);
+      await addMessage('system', 'Jordan was solving a problem he didn\'t understand yet. The check-ins tracked the symptom. The cause was never found.', 800);
+      setTimeout(() => goToDebrief(), 1500);
+    }
+
+    // DP2 Choice B — effective (asks first)
+    async function dp2B() {
+      state.dp2 = 'B';
+      state.onaaUsed.push('A1');
+      clearChoices();
+      await addMessage('jordan', 'Before I suggest anything — is there something making this harder that I\'m not seeing?', 0);
+      await showTyping(1000);
+      await addMessage('priya', '...', 1400);
+      await showTyping(400);
+      await addMessage('priya', 'Honestly?', 2000);
+      await showTyping(400);
+      await addMessage('priya', 'I\'ve been covering Karan\'s tickets since he went on leave. Three weeks. No one redistributed his work, so I just started picking it up. I didn\'t want to make it a thing.', 2600);
+      await showTyping(400);
+      await addMessage('priya', 'I probably should have said something sooner.', 1800);
+      setProgress(3, 3);
+      showDP3();
+    }
+
+    // DP3
+    function showDP3() {
+      showChoices('Priya just told you she\'s been covering for an absent colleague for three weeks. No one asked her to. No one reassigned the work.\n\nHow do you close?', [
+        {
+          text: '"That\'s something I should have caught. Here\'s what I\'d like to do: I\'ll talk to the team lead today about redistributing Karan\'s tickets. Can you send me a list of what you\'ve been carrying by end of day? Let\'s check in Friday to make sure it\'s landed."',
+          action: () => dp3A()
+        },
+        {
+          text: '"I\'ll handle this. I\'ll talk to the team lead and get Karan\'s work redistributed today. You shouldn\'t have had to carry this alone."',
+          action: () => dp3B()
+        },
+        {
+          text: '"That\'s really helpful to know. Let me think about the best way to handle this, and I\'ll come back to you with a plan."',
+          action: () => dp3C()
+        }
+      ]);
+    }
+
+    // DP3 A — effective (shared ownership)
+    async function dp3A() {
+      state.dp3 = 'A';
+      state.path = 'effective';
+      state.onaaUsed.push('N', 'A2');
+      clearChoices();
+      await addMessage('jordan', 'That\'s something I should have caught. Here\'s what I\'d like to do: I\'ll talk to the team lead today about redistributing Karan\'s tickets. Can you send me a list of what you\'ve been carrying by end of day? Let\'s check in Friday to make sure it\'s landed.', 0);
+      await showTyping(600);
+      await addMessage('priya', 'Yeah. I can do that.', 1000);
+      await showTyping(800);
+      await addMessage('priya', 'Thank you for actually asking.', 1800);
+      await addMessage('system', 'Priya sent the list at 4:47pm. The workload was redistributed the next morning. Her tickets were complete by end of the following sprint.', 1400);
+      setProgress(3, 3);
+      document.getElementById('sim-progress-label').textContent = 'Complete';
+      setTimeout(() => goToDebrief(), 2000);
+    }
+
+    // DP3 B — almost: took over
+    async function dp3B() {
+      state.dp3 = 'B';
+      state.path = 'almostB';
+      state.onaaUsed.push('N');
+      clearChoices();
+      await addMessage('jordan', 'I\'ll handle this. I\'ll talk to the team lead and get Karan\'s work redistributed today. You shouldn\'t have had to carry this alone.', 0);
+      await showTyping(600);
+      await addMessage('priya', 'Oh. Okay. Thanks, Jordan.', 1000);
+      await addMessage('system', 'The workload was redistributed. Priya\'s tickets improved. But she left the room without an action of her own. Jordan solved it for her, not with her. Next time something goes wrong, she\'ll wait for Jordan to fix it.', 1000);
+      setTimeout(() => goToDebrief(), 2000);
+    }
+
+    // DP3 C — almost: deferred
+    async function dp3C() {
+      state.dp3 = 'C';
+      state.path = 'almostC';
+      state.onaaUsed.push('N');
+      clearChoices();
+      await addMessage('jordan', 'That\'s really helpful to know. Let me think about the best way to handle this, and I\'ll come back to you with a plan.', 0);
+      await showTyping(600);
+      await addMessage('priya', 'Sure. Okay.', 1000);
+      await addMessage('system', 'Priya had just told Jordan something she\'d been hiding for three weeks. The response was "let me think about it." She didn\'t bring it up again.', 1200);
+      setTimeout(() => goToDebrief(), 2000);
+    }
+
+    // ── Go to debrief ──
+    function goToDebrief() {
+      NBTracker.simCompleted(state.path, state.onaaUsed);
+
+      const map = {
+        avoid: 'screen-avoid',
+        clumsy: 'screen-clumsy',
+        effective: 'screen-effective',
+        almostB: 'screen-almostA',
+        almostC: 'screen-almostB'
+      };
+      const screenId = map[state.path];
+
+      // Render ONAA pills
+      const pillsId = {
+        avoid: 'avoid-pills', clumsy: 'clumsy-pills',
+        effective: 'eff-pills', almostB: 'almA-pills', almostC: 'almB-pills'
+      }[state.path];
+      renderPills(pillsId, state.onaaUsed);
+
+      showScreen(screenId);
+
+      // Avoid path: stagger timeline items
+      if (state.path === 'avoid') {
+        document.querySelectorAll('#avoid-timeline .tl-item').forEach(item => {
+          const d = parseInt(item.dataset.delay);
+          setTimeout(() => item.classList.add('visible'), 400 + d);
+        });
+        // Reveal rest after timeline
+        setTimeout(() => {
+          ['avoid-reveal', 'avoid-quote', 'avoid-reflect', 'avoid-pills', 'avoid-cta'].forEach((id, i) => {
+            setTimeout(() => {
+              const el = document.getElementById(id);
+              if (el) reveal(el);
+            }, i * 400);
+          });
+        }, 7000);
+      }
+    }
+
+    // ── Setup screen ──
+    document.addEventListener('DOMContentLoaded', () => {
+      revealScreen('screen-setup', 200);
+    });
+
+    document.getElementById('btn-open-sim').addEventListener('click', startSim);
+
+    // ── Continue buttons → Stage 5 ──
+    ['btn-continue-avoid', 'btn-continue-clumsy', 'btn-continue-eff', 'btn-continue-almA', 'btn-continue-almB'].forEach(id => {
+      document.getElementById(id).addEventListener('click', () => {
+        window.location.href = 'stage5.html?path=' + state.path;
+      });
+    });
+  </script>
+
+</body>
+</html>

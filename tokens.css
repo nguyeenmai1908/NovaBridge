@@ -6,7 +6,7 @@
    ============================================================ */
 
 /* ── Fonts ── */
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
 
 /* ── Root tokens ── */
 :root {
@@ -94,10 +94,12 @@
 
   /* Typography */
   --font:          'Plus Jakarta Sans', system-ui, sans-serif;
-  --text-xs:       0.75rem;
-  --text-sm:       0.875rem;
-  --text-base:     1.065rem;
-  --text-md:       1.19rem;
+  --text-2xs:      0.71rem;
+  --text-xxs:      0.78rem;
+  --text-xs:       0.8125rem;
+  --text-sm:       1rem;
+  --text-base:     1.25rem;
+  --text-md:       1.325rem;
   --text-lg:       1.375rem;
   --text-xl:       1.73rem;
   --text-2xl:      2.125rem;
@@ -198,6 +200,19 @@ body {
   top: 40%;
   right: -30px;
   animation: orb-drift 11s ease-in-out infinite 2s;
+}
+
+/* ── Screen counter pill (shared across all stage pages) ── */
+
+.nav-counter {
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semi);
+  color: var(--text-tertiary);
+  letter-spacing: 0.04em;
+  padding: 3px 10px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-pill);
 }
 
 /* ── Stage-specific orb overrides ── */
@@ -354,7 +369,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 10px;
+  font-size: var(--text-2xs);
   font-weight: var(--weight-semi);
   transition: all var(--transition-base);
   flex-shrink: 0;
@@ -451,27 +466,27 @@ body {
 }
 
 .char-card--sarah {
-  background: linear-gradient(135deg, rgba(236,72,153,0.08), rgba(167,139,250,0.06));
+  background: linear-gradient(135deg, rgba(236,72,153,0.16), rgba(167,139,250,0.10));
   border-color: var(--rose-400);
-  border-top: 1px solid rgba(236,72,153,0.15);
-  border-right: 1px solid rgba(236,72,153,0.10);
-  border-bottom: 1px solid rgba(236,72,153,0.10);
+  border-top: 1px solid rgba(236,72,153,0.28);
+  border-right: 1px solid rgba(236,72,153,0.18);
+  border-bottom: 1px solid rgba(236,72,153,0.18);
 }
 
 .char-card--marcus {
-  background: linear-gradient(135deg, rgba(99,102,241,0.10), rgba(139,92,246,0.06));
+  background: linear-gradient(135deg, rgba(99,102,241,0.18), rgba(139,92,246,0.12));
   border-color: var(--indigo-400);
-  border-top: 1px solid rgba(99,102,241,0.18);
-  border-right: 1px solid rgba(99,102,241,0.12);
-  border-bottom: 1px solid rgba(99,102,241,0.12);
+  border-top: 1px solid rgba(99,102,241,0.30);
+  border-right: 1px solid rgba(99,102,241,0.20);
+  border-bottom: 1px solid rgba(99,102,241,0.20);
 }
 
 .char-card--amara {
-  background: linear-gradient(135deg, rgba(6,182,212,0.10), rgba(34,211,238,0.06));
+  background: linear-gradient(135deg, rgba(6,182,212,0.18), rgba(34,211,238,0.11));
   border-color: var(--cyan-400);
-  border-top: 1px solid rgba(6,182,212,0.18);
-  border-right: 1px solid rgba(6,182,212,0.12);
-  border-bottom: 1px solid rgba(6,182,212,0.12);
+  border-top: 1px solid rgba(6,182,212,0.30);
+  border-right: 1px solid rgba(6,182,212,0.20);
+  border-bottom: 1px solid rgba(6,182,212,0.20);
 }
 
 /* Sim card — white-ish surface inside chat */
@@ -487,7 +502,7 @@ body {
    ============================================================ */
 
 .text-label {
-  font-size: 10px;
+  font-size: var(--text-2xs);
   font-weight: var(--weight-semi);
   letter-spacing: 0.07em;
   text-transform: uppercase;
@@ -604,7 +619,7 @@ body {
   inset: 0;
   border-radius: inherit;
   border: 2px solid rgba(99, 102, 241, 0.5);
-  animation: pulse-ring 2.2s ease-out infinite;
+  animation: pulse-ring 2.2s ease-out 3;
   pointer-events: none;
 }
 
@@ -614,7 +629,7 @@ body {
 
 .tag {
   display: inline-block;
-  font-size: 10px;
+  font-size: var(--text-2xs);
   font-weight: var(--weight-semi);
   letter-spacing: 0.03em;
   padding: 3px 10px;
@@ -678,7 +693,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 11px;
+  font-size: var(--text-xxs);
   font-weight: var(--weight-semi);
   flex-shrink: 0;
 }
@@ -737,7 +752,7 @@ body {
 
 .chat-sys {
   text-align: center;
-  font-size: 11px;
+  font-size: var(--text-xxs);
   color: var(--text-tertiary);
   font-style: italic;
   padding: var(--space-1) 0;
@@ -775,7 +790,7 @@ body {
 }
 
 .choice-label {
-  font-size: 10px;
+  font-size: var(--text-2xs);
   font-weight: var(--weight-semi);
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -839,7 +854,7 @@ body {
 }
 
 .sim-progress-label {
-  font-size: 10px;
+  font-size: var(--text-2xs);
   color: var(--text-tertiary);
   white-space: nowrap;
 }
@@ -904,7 +919,7 @@ body {
 }
 
 .reflect-label {
-  font-size: 10px;
+  font-size: var(--text-2xs);
   font-weight: var(--weight-semi);
   letter-spacing: 0.07em;
   text-transform: uppercase;
@@ -948,7 +963,7 @@ body {
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  font-size: 10px;
+  font-size: var(--text-2xs);
   font-weight: var(--weight-semi);
   letter-spacing: 0.07em;
   text-transform: uppercase;
@@ -994,7 +1009,7 @@ body {
 .char-svg--priya { animation-delay: 0.7s; animation-duration: 3.5s; }
 
 .char-name {
-  font-size: 10px;
+  font-size: var(--text-2xs);
   font-weight: var(--weight-semi);
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -1066,7 +1081,7 @@ body {
    ============================================================ */
 
 .module-eyebrow {
-  font-size: 10px;
+  font-size: var(--text-2xs);
   font-weight: var(--weight-semi);
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -1103,7 +1118,7 @@ body {
 
 .commitment-badge {
   display: inline-block;
-  font-size: 10px;
+  font-size: var(--text-2xs);
   font-weight: var(--weight-semi);
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -1232,7 +1247,7 @@ body {
 
 .onaa-fab-letters {
   font-family: var(--font);
-  font-size: 11px;
+  font-size: var(--text-xxs);
   font-weight: var(--weight-semi);
   letter-spacing: 0.04em;
   color: #fff;
@@ -1374,7 +1389,7 @@ body {
 
 @media (max-width: 480px) {
   .onaa-fab { bottom: 16px; right: 16px; width: 46px; height: 46px; }
-  .onaa-fab-letters { font-size: 10px; }
+  .onaa-fab-letters { font-size: var(--text-2xs); }
   .onaa-overlay-panel { width: 95%; }
 }
 
@@ -1467,7 +1482,7 @@ html.text-lg  { font-size: 17px; }
   color: var(--indigo-300);
 }
 
-.text-toggle-btn--sm { font-size: 11px; }
+.text-toggle-btn--sm { font-size: var(--text-xxs); }
 .text-toggle-btn--md { font-size: 13px; }
 .text-toggle-btn--lg { font-size: 16px; }
 
@@ -1495,3 +1510,23 @@ html.text-lg  { font-size: 17px; }
 .justify-between { justify-content: space-between; }
 .w-full { width: 100%; }
 .text-center { text-align: center; }
+
+/* ── a11y additions ───────────────────────────────────────────
+   The sidebar is keyboard-operable now, so focus must be visible
+   (2.4.7), and animation must respect a reduced-motion request.  */
+.sidebar-item:focus-visible,
+.sidebar-module-toggle:focus-visible,
+.sidebar-module-heading:focus-visible {
+  outline: 2px solid var(--violet-600);
+  outline-offset: -2px;
+  border-radius: var(--radius-sm);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn-pulse-ring { animation: none; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
