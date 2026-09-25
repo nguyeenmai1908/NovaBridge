@@ -54,6 +54,39 @@
     if (current) current.setAttribute('aria-current', 'true');
   }
 
+  /* Enter advances to the next step.
+   *
+   * For people who can't use a mouse, Tab-to-the-button-then-Enter works but is
+   * slow on a 13-screen course. This lets Enter fire the forward action from
+   * anywhere on the screen.
+   *
+   * Deliberately skipped when focus is in a field or already on something
+   * clickable, so it never hijacks typing and never double-fires. */
+  function enterAdvances(e) {
+    if (e.key !== 'Enter' || e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey) return;
+
+    var t = e.target || {};
+    var tag = (t.tagName || '').toLowerCase();
+    if (tag === 'input' || tag === 'textarea' || tag === 'select' ||
+        tag === 'button' || tag === 'a' || t.isContentEditable ||
+        (t.getAttribute && t.getAttribute('role') === 'button')) return;
+
+    var scope = document.querySelector('.screen.active') || document;
+    var buttons = scope.querySelectorAll('.btn--primary, .qz-btn');
+
+    for (var i = 0; i < buttons.length; i++) {
+      var b = buttons[i];
+      if (b.disabled) continue;                            // e.g. quiz Next before answering
+      if (b.offsetParent === null) continue;               // hidden on this screen
+      if (b.classList.contains('qz-btn--ghost')) continue; // prefer the forward action
+      e.preventDefault();
+      b.click();
+      return;
+    }
+  }
+
+  document.addEventListener('keydown', enterAdvances);
+
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
   } else {

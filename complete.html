@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Module 3 — The Cost of Inaction · NovaBridge</title>
+  <title>Course complete · NovaBridge</title>
   <link rel="stylesheet" href="tokens.css">
   <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&display=swap" rel="stylesheet">
   <style>
@@ -269,259 +269,101 @@
       box-shadow: inset 4px 0 0 var(--accent-bar), 0 12px 32px rgba(0,0,0,0.28);
     }
 
-    /* ── 3.1 The hidden costs ─────────────── */
-    .cs-lead {
-      max-width: 46ch;
-      margin-bottom: var(--space-5);
-      color: var(--text-primary);
-    }
-
-    /* Second sentence of the lead-in, a step quieter */
-    .cs-lead span { color: rgba(255,255,255,0.62); }
-
-    .cs-prompt {
-      margin-bottom: var(--space-6);
-      font-size: var(--text-sm);
-      color: rgba(255,255,255,0.7);
-    }
-
-    /* Accordion — the header is what a manager sees,
-       the panel is the cost underneath it */
-    .cs-acc {
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-4);
-    }
-
-    .cs-acc-item {
-      border-radius: var(--radius-xl);
-      overflow: hidden;
-      box-shadow: inset 4px 0 0 var(--accent-bar), 0 12px 32px rgba(0,0,0,0.28);
-    }
-
-    .cs-acc-trigger {
-      position: relative;
-      width: 100%;
-      padding: var(--space-5) var(--space-6);
-      background: var(--accent-tint);
-      border: 0;
-      display: flex;
+    /* ── Final screen ─────────────────────── */
+    /* Section label — lost when the Module 3 CSS was stripped out */
+    .ps-eyebrow {
+      align-self: flex-start;
+      display: inline-flex;
       align-items: center;
-      gap: var(--space-4);
-      font-family: var(--font);
-      font-size: var(--text-base);
-      font-weight: var(--weight-semi);
-      color: #1a1745;
-      text-align: left;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-
-    .cs-acc-trigger:hover { background: #f4f1ff; }
-
-    .cs-acc-eyebrow {
+      gap: var(--space-2);
+      margin-bottom: var(--space-4);
+      padding: 3px 10px;
+      border-radius: var(--radius-pill);
+      background: var(--accent-soft);
+      color: var(--accent-ink);
       font-size: var(--text-2xs);
       font-weight: var(--weight-semi);
       letter-spacing: 0.08em;
       text-transform: uppercase;
-      color: var(--accent-ink);
-      background: var(--accent-soft);
-      padding: 2px 10px;
-      border-radius: var(--radius-pill);
-      flex-shrink: 0;
     }
 
-    .cs-acc-label { flex: 1; }
-
-    .cs-acc-chevron {
-      color: var(--accent-ink);
-      display: flex;
-      transition: transform 0.25s ease;
-      flex-shrink: 0;
+    .cs-lead {
+      max-width: 52ch;
+      margin-bottom: var(--space-8);
+      color: var(--text-primary);
     }
 
-    .cs-acc-trigger[aria-expanded="true"] .cs-acc-chevron { transform: rotate(180deg); }
+    .cs-lead span { color: rgba(255,255,255,0.62); }
 
-    .cs-acc-panel {
-      padding: var(--space-6);
-      background: var(--accent-wash);
-      border-top: 1px solid rgba(26,23,69,0.08);
-    }
-
-    .cs-acc-panel[hidden] { display: none; }
-
-    .cs-acc-title {
-      margin-bottom: var(--space-2);
-      font-size: var(--text-sm);
-      font-weight: var(--weight-semi);
-      color: #1a1745;
-    }
-
-    .cs-acc-body {
-      font-size: var(--text-sm);
-      line-height: var(--leading-base);
-      color: #4a4775;
-    }
-
-    .cs-acc-who {
-      display: inline-block;
-      margin-top: var(--space-4);
-      padding: 3px 10px;
-      border-radius: var(--radius-pill);
-      border: 1px solid var(--accent-line);
-      font-size: var(--text-2xs);
-      font-weight: var(--weight-semi);
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      color: var(--accent-ink);
-    }
-
-    /* ── 3.2 The number ───────────────────── */
-    .cs-question {
+    .fin-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 1fr;
+      gap: var(--space-5);
       margin-bottom: var(--space-5);
+    }
+
+    .fin-action-text {
+      margin-bottom: var(--space-4);
       font-size: var(--text-base);
       font-weight: var(--weight-semi);
       line-height: var(--leading-base);
       color: #1a1745;
     }
 
-    .guess-btns {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: var(--space-2);
-    }
-
-    .guess-btn {
-      min-height: 48px;
-      border-radius: var(--radius-lg);
-      border: 1px solid var(--accent-line);
-      background: #ffffff;
-      color: #1a1745;
-      font-family: var(--font);
-      font-size: var(--text-sm);
-      font-weight: var(--weight-semi);
-      cursor: pointer;
-      transition: border-color 0.15s, background 0.15s, opacity 0.15s, box-shadow 0.15s;
-    }
-
-    .guess-btn:not(:disabled):hover { border-color: var(--accent-bar); box-shadow: 0 2px 8px var(--accent-soft); }
-
-    /* After a guess: the real answer fills, your pick keeps a ring, the rest fade */
-    .guess-btns.is-locked .guess-btn { cursor: default; opacity: 0.4; box-shadow: none; }
-    .guess-btns.is-locked .guess-btn.is-picked { opacity: 1; border: 2px solid var(--accent-bar); }
-    .guess-btns.is-locked .guess-btn.is-answer {
-      opacity: 1;
-      border-color: var(--accent-bar);
-      background: var(--accent-bar);
-      color: #ffffff;
-    }
-
-    .cs-reveal {
-      margin-top: var(--space-8);
-      padding-top: var(--space-8);
-      border-top: 1px solid rgba(26,23,69,0.08);
-      animation: cs-in 0.4s ease;
-    }
-
-    .cs-reveal[hidden] { display: none; }
-
-    .stat-number {
-      font-size: clamp(48px, 7vw, 72px);
-      font-weight: 700;
-      line-height: 1;
-      letter-spacing: -0.02em;
-      color: var(--accent-ink);
-      text-align: center;
-    }
-
-    .stat-sub {
-      margin: var(--space-2) 0 var(--space-6);
-      font-size: var(--text-sm);
-      color: #4a4775;
-      text-align: center;
-    }
-
-    .stat-line {
+    .fin-note {
       font-size: var(--text-sm);
       line-height: var(--leading-base);
       color: #4a4775;
     }
 
-    .stat-punch {
+    .fin-links { list-style: none; margin: 0; padding: 0; }
+
+    .fin-links li + li {
+      margin-top: var(--space-4);
+      padding-top: var(--space-4);
+      border-top: 1px solid rgba(26,23,69,0.08);
+    }
+
+    .fin-links a {
+      font-size: var(--text-sm);
+      font-weight: var(--weight-semi);
+      color: var(--accent-ink);
+      text-decoration: none;
+      border-bottom: 1px solid var(--accent-line);
+    }
+
+    .fin-links a:hover { border-bottom-color: var(--accent-bar); }
+
+    .fin-links p {
       margin-top: var(--space-2);
-      font-size: clamp(22px, 2.6vw, 28px);
-      font-weight: 700;
-      line-height: 1.25;
-      color: #1a1745;
+      font-size: var(--text-sm);
+      line-height: var(--leading-base);
+      color: #4a4775;
     }
 
-    .stat-source {
-      margin-top: var(--space-6);
-      font-size: var(--text-xs);
-      color: #6b67a0;
-    }
-
-    @keyframes cs-in {
-      from { opacity: 0; transform: translateY(6px); }
-      to   { opacity: 1; transform: none; }
-    }
-
-    /* ── 3.3 The takeaway ─────────────────── */
-    .sticky-wrap {
+    .fin-next {
       display: flex;
-      justify-content: center;
-      padding: var(--space-8) 0 var(--space-6);
+      align-items: baseline;
+      flex-wrap: wrap;
+      gap: var(--space-3);
+      padding: var(--space-5) var(--space-6);
+      border: 1px dashed rgba(255,255,255,0.18);
+      border-radius: var(--radius-xl);
+      font-size: var(--text-sm);
+      color: rgba(255,255,255,0.8);
     }
 
-    .sticky-note {
-      position: relative;
-      width: 100%;
-      max-width: 480px;
-      padding: var(--space-10) var(--space-8);
-      border-radius: 2px;
-      background: #fef08a;
-      box-shadow:
-        0 4px 6px rgba(0,0,0,0.07),
-        0 14px 28px rgba(0,0,0,0.25),
-        inset 0 -2px 4px rgba(0,0,0,0.04);
-      transform: rotate(-1.5deg);
+    .fin-next-label {
+      font-size: var(--text-2xs);
+      font-weight: var(--weight-semi);
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      color: var(--accent);
     }
-
-    /* Tape strip */
-    .sticky-note::before {
-      content: '';
-      position: absolute;
-      top: -10px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 64px;
-      height: 22px;
-      border-radius: 2px;
-      border: 1px solid rgba(200,200,150,0.4);
-      background: rgba(255,255,255,0.55);
-    }
-
-    .sticky-text {
-      font-family: 'Caveat', cursive;
-      font-size: 28px;
-      font-weight: 700;
-      line-height: 1.35;
-      color: #3d3000;
-    }
-
-    .sticky-text + .sticky-text { margin-top: var(--space-5); }
 
     @media (max-width: 768px) {
+      .fin-grid { grid-template-columns: 1fr; }
       .cs-card { padding: var(--space-6); }
-      /* Label drops to its own line; chevron stays pinned top-right */
-      .cs-acc-trigger { flex-wrap: wrap; gap: var(--space-2); padding-right: var(--space-10); }
-      .cs-acc-label { flex: 1 0 100%; }
-      .cs-acc-chevron { position: absolute; top: var(--space-5); right: var(--space-5); }
-      .guess-btns { grid-template-columns: repeat(3, 1fr); }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      .cs-reveal { animation: none; }
     }
 
     /* ─────────────────────────────────────────
@@ -584,7 +426,7 @@
   <nav class="nav">
     <span class="nav-brand">NovaBridge &middot; People Development</span>
     <div style="display:flex;align-items:center;gap:var(--space-4);">
-      <span class="nav-counter" id="nav-counter">9 / 13</span>
+      <span class="nav-counter" id="nav-counter">13 / 13</span>
       <div class="text-toggle">
         <button class="text-toggle-btn text-toggle-btn--sm" data-size="text-sm">A</button>
         <button class="text-toggle-btn text-toggle-btn--md" data-size="text-md">A</button>
@@ -669,20 +511,20 @@
       <div class="sidebar-divider"></div>
 
       <!-- Module 3 — COST (active) -->
-      <div class="sidebar-module-toggle sidebar-module-toggle--active sidebar-module-toggle--open" onclick="toggleSidebarSection(this)">
+      <div class="sidebar-module-toggle sidebar-module-toggle--open" onclick="toggleSidebarSection(this)">
         <span>The Cost of Inaction</span>
         <svg class="sidebar-chevron" aria-hidden="true" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
       </div>
       <div class="sidebar-screens sidebar-collapsible sidebar-collapsible--open">
-        <div class="sidebar-item sidebar-item--active" id="sitem-0" data-screen="0">
+        <div class="sidebar-item sidebar-item--done" onclick="window.location.href='stage3.html'">
           <div class="sidebar-step-num">1</div>
           The hidden costs
         </div>
-        <div class="sidebar-item" id="sitem-1" data-screen="1">
+        <div class="sidebar-item sidebar-item--done" onclick="window.location.href='stage3.html#1'">
           <div class="sidebar-step-num">2</div>
           The $7,500 question
         </div>
-        <div class="sidebar-item" id="sitem-2" data-screen="2">
+        <div class="sidebar-item sidebar-item--done" onclick="window.location.href='stage3.html#2'">
           <div class="sidebar-step-num">3</div>
           The takeaway
         </div>
@@ -723,161 +565,64 @@
     <main class="content-area">
 
       <!-- ══════════════════════════════════
-           SCREEN 3.1 — The hidden costs (9/13)
+           Course complete (13/13)
       ══════════════════════════════════ -->
       <div class="screen cost-screen active" id="screen-0">
 
         <div class="ps-meta fade-up">
-          <div class="breadcrumb">MODULE 3 &middot; THE COST OF INACTION</div>
+          <div class="breadcrumb">COURSE 1 &middot; COMPLETE</div>
           <div class="ps-step">
-            1 of 3
-            <span class="ps-dots" aria-hidden="true"><i class="is-active"></i><i></i><i></i></span>
+            13 of 13
+            <span class="ps-dots" aria-hidden="true"><i class="is-active"></i></span>
           </div>
         </div>
 
-        <h1 class="screen-title fade-up">The hidden costs</h1>
+        <h1 class="screen-title fade-up">You finished.</h1>
 
         <p class="screen-subtitle cs-lead fade-up">
-          Avoidance doesn't stop the conversation. <span>It just delays it.</span>
+          You can name what avoidance looks like, what drives it, and what it costs while nobody says anything. <span>Most managers are never taught any of that.</span>
         </p>
 
-        <p class="cs-prompt fade-up">Each of these looks minor from where you sit. Open one to see what it's actually costing.</p>
+        <div class="fin-grid fade-up">
 
-        <div class="cs-acc fade-up">
-
-          <div class="cs-acc-item">
-            <button class="cs-acc-trigger" aria-expanded="false" onclick="toggleCost(this)">
-              <span class="cs-acc-eyebrow">You see</span>
-              <span class="cs-acc-label">A missed deadline</span>
-              <span class="cs-acc-chevron" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>
-            </button>
-            <div class="cs-acc-panel" hidden>
-              <div class="cs-acc-title">Teammates quietly cover the gap</div>
-              <p class="cs-acc-body">The work still ships, so nothing looks broken. The cost lands on the people absorbing it.</p>
-              <span class="cs-acc-who">The team pays</span>
-            </div>
+          <div class="cs-card">
+            <div class="ps-eyebrow">This week</div>
+            <p class="fin-action-text">Notice one conversation you're postponing, and name which of the three patterns is driving it.</p>
+            <p class="fin-note">That's the whole task. You're not committing to have the conversation yet, only to catch the pattern while it's happening.</p>
           </div>
 
-          <div class="cs-acc-item">
-            <button class="cs-acc-trigger" aria-expanded="false" onclick="toggleCost(this)">
-              <span class="cs-acc-eyebrow">You see</span>
-              <span class="cs-acc-label">A quiet 1:1</span>
-              <span class="cs-acc-chevron" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>
-            </button>
-            <div class="cs-acc-panel" hidden>
-              <div class="cs-acc-title">Problems stop reaching you</div>
-              <p class="cs-acc-body">People stop raising issues with you. What does reach you arrives late, when it's expensive to fix.</p>
-              <span class="cs-acc-who">You pay</span>
-            </div>
+          <div class="cs-card">
+            <div class="ps-eyebrow">Go deeper</div>
+            <ul class="fin-links">
+              <li>
+                <a href="https://cruciallearning.com/" target="_blank" rel="noopener">Crucial Conversations</a>
+                <p>Patterson, Grenny, McMillan and Switzler. The standard text on high-stakes conversations, and the source of the $7,500 figure in Module 3.</p>
+              </li>
+              <li>
+                <a href="https://www.radicalcandor.com/" target="_blank" rel="noopener">Radical Candor</a>
+                <p>Kim Scott, on caring personally while challenging directly — the balance Sarah never finds.</p>
+              </li>
+            </ul>
           </div>
 
-          <div class="cs-acc-item">
-            <button class="cs-acc-trigger" aria-expanded="false" onclick="toggleCost(this)">
-              <span class="cs-acc-eyebrow">You see</span>
-              <span class="cs-acc-label">&ldquo;Everything's fine&rdquo;</span>
-              <span class="cs-acc-chevron" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>
-            </button>
-            <div class="cs-acc-panel" hidden>
-              <div class="cs-acc-title">Good people start looking</div>
-              <p class="cs-acc-body">The ones carrying the extra load update their LinkedIn. You find out when they resign.</p>
-              <span class="cs-acc-who">The organization pays</span>
-            </div>
-          </div>
+        </div>
 
+        <div class="fin-next fade-up">
+          <span class="fin-next-label">Next course</span>
+          <span>Applying ONAA — a framework for having the conversation, not just recognising why you avoid it. Coming soon.</span>
         </div>
 
         <div class="bottom-nav fade-up">
           <div class="bottom-nav-left">
-            <button class="btn-ghost" onclick="window.location.href='stage2.html'">← Back</button>
+            <button class="btn-ghost" onclick="window.location.href='stage4.html'">← Back to the check</button>
           </div>
-          <button class="btn btn--primary" onclick="goToScreen(1)">
-            See the number →
+          <button class="btn btn--primary" onclick="window.location.href='index.html'">
+            Back to start →
             <span class="btn-pulse-ring"></span>
           </button>
         </div>
 
-      </div><!-- /#screen-0 -->
-
-
-      <!-- ══════════════════════════════════
-           SCREEN 3.2 — The $7,500 question (10/13)
-      ══════════════════════════════════ -->
-      <div class="screen cost-screen" id="screen-1">
-
-        <div class="ps-meta fade-up">
-          <div class="breadcrumb">MODULE 3 &middot; THE COST OF INACTION</div>
-          <div class="ps-step">
-            2 of 3
-            <span class="ps-dots" aria-hidden="true"><i></i><i class="is-active"></i><i></i></span>
-          </div>
-        </div>
-
-        <h1 class="screen-title fade-up" style="margin-bottom: var(--space-8);">What does one avoided conversation cost?</h1>
-
-        <div class="cs-card fade-up">
-          <p class="cs-question">Researchers asked employees what one avoided conversation costs their organization. What was the average estimate?</p>
-
-          <div class="guess-btns" id="guess-btns">
-            <button class="guess-btn" onclick="makeGuess(this)">$500</button>
-            <button class="guess-btn" onclick="makeGuess(this)">$1,500</button>
-            <button class="guess-btn" onclick="makeGuess(this)">$3,500</button>
-            <button class="guess-btn" data-answer onclick="makeGuess(this)">$7,500</button>
-            <button class="guess-btn" onclick="makeGuess(this)">$15,000</button>
-          </div>
-
-          <div class="cs-reveal" id="stat-reveal" aria-live="polite" hidden>
-            <div class="stat-number">$7,500</div>
-            <p class="stat-sub">and more than seven workdays</p>
-            <p class="stat-line">Not every terminated employee. Not every resignation.</p>
-            <p class="stat-punch">Every. Avoided. Conversation.</p>
-            <p class="stat-source">Source: VitalSmarts (now Crucial Learning), <em>Costly Conversations</em> study, 2016.</p>
-          </div>
-        </div>
-
-        <div class="bottom-nav fade-up">
-          <div class="bottom-nav-left">
-            <button class="btn-ghost" onclick="goToScreen(0)">← Back</button>
-          </div>
-          <button class="btn btn--primary" id="next-stat" onclick="goToScreen(2)" disabled>
-            One more thing →
-            <span class="btn-pulse-ring"></span>
-          </button>
-        </div>
-
-      </div><!-- /#screen-1 -->
-
-
-      <!-- ══════════════════════════════════
-           SCREEN 3.3 — The takeaway (11/13)
-      ══════════════════════════════════ -->
-      <div class="screen cost-screen" id="screen-2">
-
-        <div class="ps-meta fade-up">
-          <div class="breadcrumb">MODULE 3 &middot; THE COST OF INACTION</div>
-          <div class="ps-step">
-            3 of 3
-            <span class="ps-dots" aria-hidden="true"><i></i><i></i><i class="is-active"></i></span>
-          </div>
-        </div>
-
-        <div class="sticky-wrap fade-up">
-          <div class="sticky-note">
-            <p class="sticky-text">The goal is not to stop feeling nervous.</p>
-            <p class="sticky-text">The goal is to notice when nervousness is making the decision for you.</p>
-          </div>
-        </div>
-
-        <div class="bottom-nav fade-up">
-          <div class="bottom-nav-left">
-            <button class="btn-ghost" onclick="goToScreen(1)">← Back</button>
-          </div>
-          <button class="btn btn--primary" onclick="window.location.href='stage4.html'">
-            Check your understanding →
-            <span class="btn-pulse-ring"></span>
-          </button>
-        </div>
-
-      </div><!-- /#screen-2 -->
+      </div>
 
     </main>
   </div><!-- /.app-shell -->
@@ -885,89 +630,6 @@
   <script src="a11y.js"></script>
   <script src="text-size.js"></script>
   <script>
-
-    // ── State ────────────────────────────────────────────────────────
-    const TOTAL_SCREENS = 3;
-    const NAV_OFFSETS   = [9, 10, 11];
-
-    // Every screen is reachable from the sidebar
-    const reached = new Set([0, 1, 2]);
-
-    // ── Navigation ───────────────────────────────────────────────────
-    function goToScreen(idx) {
-      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-      document.getElementById('screen-' + idx).classList.add('active');
-      reached.add(idx);
-
-      document.getElementById('nav-counter').textContent = NAV_OFFSETS[idx] + ' / 13';
-
-      document.querySelectorAll('#screen-' + idx + ' .fade-up').forEach((el, i) => {
-        el.classList.remove('visible');
-        requestAnimationFrame(() => requestAnimationFrame(() => {
-          setTimeout(() => el.classList.add('visible'), 80 + i * 100);
-        }));
-      });
-
-      setSidebarState(idx);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    // ── Sidebar ──────────────────────────────────────────────────────
-    function setSidebarState(activeIdx) {
-      for (let i = 0; i < TOTAL_SCREENS; i++) {
-        const el = document.getElementById('sitem-' + i);
-        if (!el) continue;
-        const num = el.querySelector('.sidebar-step-num');
-
-        el.classList.remove('sidebar-item--active', 'sidebar-item--done');
-
-        if (i === activeIdx) {
-          el.classList.add('sidebar-item--active');
-          num.textContent = i + 1;
-          el.style.cursor = 'default';
-          el.onclick = null;
-        } else if (reached.has(i)) {
-          el.classList.add('sidebar-item--done');
-          num.textContent = '✓';
-          el.style.cursor = 'pointer';
-          el.onclick = () => goToScreen(i);
-        } else {
-          num.textContent = i + 1;
-          el.style.cursor = 'default';
-          el.onclick = null;
-        }
-      }
-    }
-
-    // ── Guess interaction ─────────────────────────────────────────────
-    // One guess, then the real answer fills and the stat appears.
-    // No right/wrong styling — the guess only sets up the reveal.
-    function makeGuess(btn) {
-      const group = document.getElementById('guess-btns');
-      if (group.classList.contains('is-locked')) return;
-
-      group.classList.add('is-locked');
-      group.querySelectorAll('.guess-btn').forEach(b => {
-        b.disabled = true;
-        if (b.hasAttribute('data-answer')) b.classList.add('is-answer');
-      });
-      btn.classList.add('is-picked');
-
-      setTimeout(() => {
-        document.getElementById('stat-reveal').hidden = false;
-        document.getElementById('next-stat').disabled = false;
-      }, 300);
-    }
-
-    // ── Cost accordion (3.1) ────────────────────────────────────────
-    function toggleCost(btn) {
-      const panel = btn.nextElementSibling;
-      const isOpen = btn.getAttribute('aria-expanded') === 'true';
-      btn.setAttribute('aria-expanded', String(!isOpen));
-      panel.hidden = isOpen;
-    }
-
-    // ── Sidebar collapsible toggle ──────────────────────────────────
     function toggleSidebarSection(toggle) {
       const screens = toggle.nextElementSibling;
       if (!screens || !screens.classList.contains('sidebar-collapsible')) return;
@@ -975,22 +637,11 @@
       toggle.classList.toggle('sidebar-module-toggle--open');
     }
 
-    // ── Boot ─────────────────────────────────────────────────────────
-    // stage3.html#2 opens screen 3.3 directly (used by other pages' sidebars)
     document.addEventListener('DOMContentLoaded', () => {
-      const start = parseInt(location.hash.slice(1), 10);
-      if (start > 0 && start < TOTAL_SCREENS) {
-        goToScreen(start);
-        return;
-      }
-
-      document.querySelectorAll('#screen-0 .fade-up').forEach((el, i) => {
+      document.querySelectorAll('.fade-up').forEach((el, i) => {
         setTimeout(() => el.classList.add('visible'), 120 + i * 120);
       });
-
-      setSidebarState(0);
     });
-
   </script>
 
 </body>
